@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -12,33 +12,23 @@
     <script>
         window.tailwind = {
             config: {
-                darkMode: 'class',
                 theme: {
                     extend: {
                         fontFamily: {
                             sans: ['Inter', 'sans-serif'],
                             mono: ['JetBrains Mono', 'monospace'],
                         },
+                        colors: {
+                            primary: '#3b82f6',
+                            secondary: '#64748b',
+                        },
                         animation: {
-                            'fade-in': 'fadeIn 0.5s ease-out forwards',
-                            'slide-up': 'slideUp 0.4s ease-out forwards',
-                            'shake': 'shake 0.5s cubic-bezier(.36,.07,.19,.97) both',
+                            'fade-in': 'fadeIn 0.3s ease-out forwards',
+                            'slide-up': 'slideUp 0.3s ease-out forwards',
                         },
                         keyframes: {
-                            fadeIn: {
-                                '0%': { opacity: '0' },
-                                '100%': { opacity: '1' },
-                            },
-                            slideUp: {
-                                '0%': { opacity: '0', transform: 'translateY(20px)' },
-                                '100%': { opacity: '1', transform: 'translateY(0)' },
-                            },
-                            shake: {
-                                '10%, 90%': { transform: 'translate3d(-1px, 0, 0)' },
-                                '20%, 80%': { transform: 'translate3d(2px, 0, 0)' },
-                                '30%, 50%, 70%': { transform: 'translate3d(-4px, 0, 0)' },
-                                '40%, 60%': { transform: 'translate3d(4px, 0, 0)' }
-                            }
+                            fadeIn: { '0%': { opacity: '0' }, '100%': { opacity: '1' } },
+                            slideUp: { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
                         }
                     }
                 }
@@ -52,939 +42,1042 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
-    <!-- jsPDF for PDF Generation -->
+    <!-- jsPDF & AutoTable -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
     <style>
         body {
-            background-color: #0b1121; /* Darker slate */
-            color: #f1f5f9;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.1) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.1) 0px, transparent 50%);
-            background-attachment: fixed;
+            background-color: #f1f5f9; /* Slate 100 */
+            color: #0f172a; /* Slate 900 */
         }
-        
-        /* Custom scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
-
-        /* Glassmorphism Utilities */
-        .glass {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         
-        .card-glass {
-            background: rgba(30, 41, 59, 0.4);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+        /* Single Line Card Style */
+        .single-line-card {
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+        }
+        /* Removed hover border color change */
+        .single-line-card:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        /* Hover lift effect */
-        .hover-lift {
-            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+        /* Square Card Style */
+        .square-card {
+            background-color: #ffffff; 
+            color: #1e293b; 
+            border-radius: 16px; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: transform 0.3s ease, box-shadow 0.3s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
         }
-        .hover-lift:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-            border-color: rgba(96, 165, 250, 0.3); /* Blue tint on hover */
+        /* Removed hover border color change */
+        .square-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
         }
 
-        /* Fix for Date/Select Inputs in Dark Mode */
-        ::-webkit-calendar-picker-indicator {
-            filter: invert(1);
-            cursor: pointer;
-            opacity: 0.6;
-            transition: opacity 0.2s;
-        }
-        ::-webkit-calendar-picker-indicator:hover {
-            opacity: 1;
-        }
-        
-        /* Custom Select Arrow */
-        select {
+        /* Hide Number Input Spinner Arrows */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
             -webkit-appearance: none;
-            -moz-appearance: none;
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2394a3b8' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 0.5rem center;
-            background-repeat: no-repeat;
-            background-size: 1.5em 1.5em;
+            margin: 0;
         }
-
-        /* Keyframes explicitly defined for CSS classes */
-        @keyframes slideUp {
-            0% { opacity: 0; transform: translateY(20px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeIn {
-            0% { opacity: 0; }
-            100% { opacity: 1; }
+        input[type=number] {
+            -moz-appearance: textfield;
         }
         
-        /* Stagger animation class */
-        .stagger-item {
-            opacity: 0; /* Starts invisible, becomes visible via animation */
-            animation: slideUp 0.4s ease-out forwards;
+        /* Modal Transitions */
+        .modal-enter { opacity: 0; transform: scale(0.95); }
+        .modal-enter-active { opacity: 1; transform: scale(1); transition: opacity 200ms, transform 200ms; }
+        .modal-exit { opacity: 1; transform: scale(1); }
+        .modal-exit-active { opacity: 0; transform: scale(0.95); transition: opacity 200ms, transform 200ms; }
+        
+        /* Checkbox Style */
+        .custom-checkbox {
+            appearance: none; background-color: #fff; margin: 0; font: inherit; color: currentColor;
+            width: 1.15em; height: 1.15em; border: 2px solid #cbd5e1; border-radius: 0.15em; display: grid; place-content: center; cursor: pointer;
         }
+        .custom-checkbox::before {
+            content: ""; width: 0.65em; height: 0.65em; transform: scale(0); transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em white; background-color: #3b82f6; transform-origin: center;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+        .custom-checkbox:checked { background-color: #3b82f6; border-color: #3b82f6; }
+        .custom-checkbox:checked::before { transform: scale(1); }
     </style>
 </head>
-<body class="overflow-hidden selection:bg-indigo-500/30 text-sm md:text-base h-screen flex flex-col">
+<body class="overflow-hidden h-screen flex flex-col font-sans text-slate-800">
 
-    <!-- HIDDEN FILE INPUT for PO Upload -->
     <input type="file" id="po-uploader" class="hidden" accept=".pdf,.doc,.docx,.jpg,.png" onchange="app.handleFileSelection(this)">
 
-    <!-- LOGIN SCREEN -->
-    <div id="login-section" class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-4 bg-[#0b1121] bg-[radial-gradient(at_0%_0%,rgba(56,189,248,0.1)_0px,transparent_50%),radial-gradient(at_100%_100%,rgba(139,92,246,0.1)_0px,transparent_50%)] backdrop-blur-xl transition-all duration-700">
-        <div class="w-full max-w-sm">
-            <div id="login-card" class="card-glass p-8 rounded-2xl shadow-2xl border border-slate-700/50 relative overflow-hidden">
-                <div class="absolute -top-20 -right-20 w-40 h-40 bg-indigo-500/20 rounded-full blur-3xl"></div>
-                <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl"></div>
-
-                <div class="relative z-10 flex flex-col items-center">
-                    
-                    <!-- DISCLAIMER -->
-                    <div class="w-full mb-6 p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-center">
-                        <h3 class="text-indigo-400 text-xs font-bold uppercase tracking-wider mb-2 flex items-center justify-center gap-1">
-                            <i data-lucide="info" class="w-3 h-3"></i> Demo Environment
-                        </h3>
-                        <p class="text-slate-400 text-xs leading-relaxed">
-                            This is a prototype CRM model designed for exploration purposes. We specialize in building <span class="text-indigo-300 font-semibold">bespoke applications</span> tailored specifically to your unique business workflows and operational requirements.
-                        </p>
-                    </div>
-
-                    <div class="w-12 h-12 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 mb-6">
-                        <i data-lucide="lock" class="text-white w-6 h-6"></i>
-                    </div>
-                    <h1 class="text-2xl font-bold text-white mb-2">Pixel CRM</h1>
-                    <p class="text-slate-400 text-sm mb-8 text-center">Enter your access code to continue</p>
-
-                    <form onsubmit="handleLogin(event)" class="w-full space-y-4">
-                        <div class="space-y-1">
-                            <label class="text-xs font-semibold text-slate-400 uppercase tracking-wide ml-1">Password</label>
-                            <div class="relative group">
-                                <i data-lucide="key" class="absolute left-4 top-3.5 text-slate-500 w-5 h-5 group-focus-within:text-indigo-400 transition-colors"></i>
-                                <input id="password-input" type="password" placeholder="•••••" class="w-full bg-slate-900/50 border border-slate-700 rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-white placeholder-slate-600 tracking-widest">
-                            </div>
-                            <p id="login-error" class="text-red-400 text-xs mt-2 hidden flex items-center gap-1">
-                                <i data-lucide="alert-circle" class="w-3 h-3"></i> Incorrect password
-                            </p>
-                        </div>
-                        <button type="submit" class="w-full py-3 rounded-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 active:scale-95 transition-all mt-2 flex items-center justify-center gap-2 group">
-                            Login <i data-lucide="arrow-right" class="w-4 h-4 group-hover:translate-x-1 transition-transform"></i>
-                        </button>
-                    </form>
-                </div>
+    <!-- LOGIN -->
+    <div id="login-section" class="fixed inset-0 z-[100] flex flex-col items-center justify-center p-4 bg-slate-50/80 backdrop-blur-md transition-all duration-700">
+        <div class="w-full max-w-sm bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
+            <div class="w-full mb-6 p-4 bg-indigo-50 border border-indigo-100 rounded-xl text-center">
+                <h3 class="text-indigo-600 text-xs font-bold uppercase tracking-wider mb-2 flex items-center justify-center gap-1"><i data-lucide="info" class="w-3 h-3"></i> Demo Environment</h3>
+                <p class="text-slate-500 text-xs leading-relaxed">Prototype CRM model. We specialize in building bespoke applications tailored to your business workflows.</p>
             </div>
-            <div class="mt-6 text-center animate-fade-in" style="animation-delay: 0.2s">
-                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700/50 text-slate-400 text-xs font-mono">
-                    <i data-lucide="key-round" class="w-3 h-3 text-indigo-400"></i>
-                    <span>Password is: <span class="text-white font-bold tracking-wider">12345</span></span>
-                </div>
+            <div class="flex flex-col items-center">
+                <div class="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg mb-4 text-white"><i data-lucide="lock" class="w-6 h-6"></i></div>
+                <h1 class="text-2xl font-bold text-slate-800 mb-2">Pixel CRM</h1>
+                <p class="text-slate-500 text-sm mb-6">Access Code: 12345</p>
+                <form onsubmit="handleLogin(event)" class="w-full space-y-4">
+                    <div class="space-y-1">
+                        <label class="text-xs font-bold text-slate-500 uppercase tracking-wide ml-1">Password</label>
+                        <input id="password-input" type="password" placeholder="•••••" class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-4 pr-4 py-3 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 text-slate-800 tracking-widest outline-none">
+                        <p id="login-error" class="text-red-500 text-xs mt-2 hidden flex items-center gap-1"><i data-lucide="alert-circle" class="w-3 h-3"></i> Incorrect password</p>
+                    </div>
+                    <button type="submit" class="w-full py-3 rounded-xl font-bold bg-blue-600 text-white shadow-md active:scale-95 transition-all flex items-center justify-center gap-2">Login <i data-lucide="arrow-right" class="w-4 h-4"></i></button>
+                </form>
             </div>
         </div>
     </div>
 
-    <!-- MAIN APP -->
-    <div id="crm-app" class="hidden flex flex-col h-screen overflow-hidden opacity-0 transition-opacity duration-700">
-        <!-- 1. Main Header -->
-        <header class="glass h-16 shrink-0 flex items-center justify-between px-4 md:px-6 z-30 relative">
-            <div class="flex items-center gap-3 group cursor-default">
-                <div class="w-9 h-9 bg-gradient-to-tr from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20 group-hover:scale-105 transition-transform duration-300">
-                    <i data-lucide="layout-dashboard" class="text-white w-5 h-5"></i>
-                </div>
-                <div>
-                    <span class="text-lg md:text-xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-slate-400">
-                        Pixel CRM
-                    </span>
-                </div>
+    <!-- APP -->
+    <div id="crm-app" class="hidden flex flex-col h-screen overflow-hidden opacity-0 transition-opacity duration-700 bg-slate-50">
+        <header class="bg-white h-16 shrink-0 flex items-center justify-between px-6 z-30 border-b border-slate-200 shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-blue-600 flex items-center justify-center rounded-lg shadow-lg"><i data-lucide="layout-dashboard" class="text-white w-5 h-5"></i></div>
+                <span class="text-xl font-bold tracking-tight text-slate-800">Pixel CRM</span>
             </div>
-
-            <!-- Desktop Search Bar -->
-            <div class="flex-1 max-w-lg mx-6 hidden md:block">
-                <div class="relative group">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <i data-lucide="search" class="w-4 h-4 text-slate-500 group-focus-within:text-blue-400 transition-colors"></i>
-                    </div>
-                    <input type="text" oninput="app.handleSearch(this.value)" 
-                        class="block w-full pl-10 pr-3 py-2 border border-slate-700 rounded-xl leading-5 bg-slate-900/50 text-slate-300 placeholder-slate-500 focus:outline-none focus:bg-slate-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 sm:text-sm transition-all" 
-                        placeholder="Search by Serial No, Email, or Phone...">
-                </div>
+            <div class="flex-1 max-w-lg mx-6 hidden md:block relative group">
+                <i data-lucide="search" class="absolute left-3 top-2.5 w-4 h-4 text-slate-400"></i>
+                <input type="text" oninput="app.handleSearch(this.value)" class="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-xl bg-slate-50 text-slate-600 focus:bg-white focus:border-blue-500 focus:outline-none text-sm transition-all" placeholder="Search records...">
             </div>
-
-            <div class="flex items-center gap-2 md:gap-4">
-                <div class="text-right hidden sm:block">
-                    <p class="text-sm font-semibold text-slate-200">Admin User</p>
-                    <div class="flex items-center justify-end gap-1.5">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <p class="text-xs text-slate-400 font-mono">v3.0.0</p>
-                    </div>
-                </div>
-                <div class="w-9 h-9 md:w-10 md:h-10 rounded-full bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center text-xs font-bold text-white border border-slate-600 shadow-inner ring-2 ring-slate-800 ring-offset-2 ring-offset-slate-900 cursor-pointer hover:ring-blue-500 transition-all">
-                    AD
-                </div>
+            <div class="flex items-center gap-4">
+                <div class="text-right hidden sm:block"><p class="text-sm font-semibold text-slate-700">Admin User</p><span class="text-xs text-slate-400 font-mono">v10.5.1</span></div>
+                <div class="w-9 h-9 bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-600 border border-slate-200 rounded-full">AD</div>
             </div>
         </header>
 
-        <!-- 2. Navigation Bar -->
-        <nav class="bg-slate-900/50 border-b border-slate-800 px-4 md:px-6 shrink-0 z-20 overflow-x-auto no-scrollbar">
-            <div class="flex items-center gap-6 md:gap-8 min-w-max" id="main-nav">
-                <!-- Nav buttons injected by JS -->
-            </div>
-        </nav>
+        <nav class="bg-white border-b border-slate-200 px-6 shrink-0 z-20 overflow-x-auto no-scrollbar shadow-sm"><div class="flex items-center gap-8 min-w-max" id="main-nav"></div></nav>
 
-        <!-- Main Content Area -->
         <main class="flex-1 flex flex-col overflow-hidden relative">
-            
-            <!-- 3. Page Header & Sub-Navigation -->
-            <div class="min-h-16 h-auto border-b border-slate-800/50 bg-slate-900/20 backdrop-blur-sm flex flex-col md:flex-row items-start md:items-center justify-between px-4 md:px-6 py-3 md:py-0 sticky top-0 z-10 shrink-0 gap-3 md:gap-0">
-                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 md:gap-6 w-full md:w-auto">
-                    <h1 class="text-2xl font-bold capitalize flex items-center gap-2 min-w-[120px] transition-all duration-300" id="page-title">
-                        <!-- Title injected by JS -->
-                    </h1>
-
-                    <!-- Sub-tab Pill Selector -->
-                    <div class="bg-slate-800/80 p-1 rounded-lg flex text-xs font-medium border border-slate-700/50 shadow-inner w-full sm:w-auto" id="subtab-container">
-                        <button id="btn-subtab-active" onclick="app.setSubTab('active')" class="flex-1 sm:flex-none px-4 py-1.5 rounded-md transition-all duration-300 ease-out text-center">
-                            Active
-                        </button>
-                        <button id="btn-subtab-dead" onclick="app.setSubTab('dead')" class="flex-1 sm:flex-none px-4 py-1.5 rounded-md transition-all duration-300 ease-out text-center">
-                            Dead / Lost
-                        </button>
+            <div class="h-16 border-b border-slate-200 bg-white/60 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-10 shrink-0">
+                <div class="flex items-center gap-6">
+                    <h1 class="text-2xl font-bold capitalize text-slate-800" id="page-title"></h1>
+                    <div class="bg-slate-100 p-1 flex text-xs font-medium border border-slate-200 rounded-lg" id="subtab-container">
+                        <button id="btn-subtab-active" onclick="app.setSubTab('active')" class="px-5 py-1.5 transition-all rounded-md">Active</button>
+                        <button id="btn-subtab-dead" onclick="app.setSubTab('dead')" class="px-5 py-1.5 transition-all rounded-md">Dead / Lost</button>
                     </div>
                 </div>
-                
-                <div class="flex items-center gap-4 w-full md:w-auto justify-end" id="header-actions">
-                    <!-- Add Button injected by JS -->
-                </div>
+                <div id="header-actions"></div>
             </div>
 
-            <!-- Dashboard Content -->
-            <div class="flex-1 overflow-y-auto p-4 md:p-6 scroll-smooth">
-                
-                <!-- Mobile Search Bar (Visible only on small screens) -->
-                <div class="mb-6 block md:hidden">
-                    <div class="relative group">
-                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <i data-lucide="search" class="w-4 h-4 text-slate-500 group-focus-within:text-blue-400 transition-colors"></i>
-                        </div>
-                        <input type="text" oninput="app.handleSearch(this.value)" 
-                            class="block w-full pl-10 pr-3 py-3 border border-slate-700 rounded-xl leading-5 bg-slate-900/50 text-slate-300 placeholder-slate-500 focus:outline-none focus:bg-slate-900 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 text-sm transition-all" 
-                            placeholder="Search records...">
-                    </div>
+            <div class="flex-1 overflow-y-auto p-6 scroll-smooth">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-8">
+                    <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wide mb-4 flex items-center gap-2"><i data-lucide="bar-chart-2" class="w-4 h-4"></i> Overview</h3>
+                    <div id="stats-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"></div>
                 </div>
 
-                <!-- Stats Row -->
-                <div id="stats-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-                    <!-- Stats cards injected by JS -->
+                <!-- Header Row for Single Line Lists (Enquiry/Quote) -->
+                <div id="list-header" class="hidden grid grid-cols-12 gap-4 px-6 pb-2 text-xs font-bold text-slate-400 uppercase tracking-wider border-b border-slate-200 mb-4 pl-8">
+                    <div class="col-span-3">Company Details</div>
+                    <div class="col-span-2">Date</div>
+                    <div class="col-span-3">Services</div>
+                    <div class="col-span-4 text-right">Actions</div>
                 </div>
 
-                <!-- List Area -->
-                <div id="items-list" class="space-y-4 pb-20 md:pb-10">
-                    <!-- Items injected by JS -->
-                </div>
+                <div id="items-list" class="space-y-3 pb-10"></div>
 
-                <!-- Footer / Disclaimer Card -->
-                <div class="mt-8 mb-4 p-6 rounded-xl border border-indigo-500/30 bg-gradient-to-r from-indigo-900/20 to-blue-900/20 backdrop-blur-md text-center shadow-lg relative overflow-hidden group">
-                    <div class="absolute inset-0 bg-gradient-to-r from-indigo-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                    <div class="relative z-10">
-                        <h3 class="text-indigo-300 font-semibold text-sm uppercase tracking-wider mb-2 flex items-center justify-center gap-2">
-                            <i data-lucide="sparkles" class="w-4 h-4"></i> Demo Environment
-                        </h3>
-                        <p class="text-slate-300 text-sm leading-relaxed max-w-3xl mx-auto">
-                            This is a prototype CRM model designed for exploration purposes. 
-                            We specialize in building <span class="text-indigo-200 font-semibold">bespoke applications</span> tailored specifically to your 
-                            unique business workflows and operational requirements.
-                        </p>
-                    </div>
+                <div class="mt-8 mb-4 p-6 border border-slate-200 bg-white text-center rounded-xl shadow-sm">
+                    <h3 class="text-indigo-600 font-semibold text-sm uppercase tracking-wider mb-2 flex items-center justify-center gap-2"><i data-lucide="sparkles" class="w-4 h-4"></i> Demo Environment</h3>
+                    <p class="text-slate-500 text-sm max-w-3xl mx-auto">This is a prototype CRM model designed for exploration purposes.</p>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- --- Modals --- -->
+    <!-- MODALS -->
 
-    <!-- Add Enquiry Modal -->
-    <div id="modal-add" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm transition-opacity duration-300">
-        <div class="bg-slate-900 border border-slate-700/50 rounded-2xl w-full max-w-2xl p-0 shadow-2xl transform transition-all scale-100 ring-1 ring-white/10 max-h-[90vh] overflow-hidden flex flex-col">
-            <!-- Header -->
-            <div class="p-4 md:p-6 pb-4 bg-slate-900/95 backdrop-blur-md sticky top-0 z-10 border-b border-slate-800">
-                <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3 text-white">
-                    <div class="p-2 bg-blue-500/20 rounded-lg text-blue-400">
-                        <i data-lucide="plus" class="w-5 h-5 md:w-6 md:h-6"></i>
-                    </div>
-                    New Enquiry
-                </h2>
+    <!-- Confirmation Modal -->
+    <div id="modal-confirm" class="hidden fixed inset-0 z-[90] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm transition-all duration-300">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl border border-slate-200 transform scale-100 transition-all">
+            <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 shrink-0">
+                    <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800" id="confirm-title">Confirm</h3>
             </div>
-            <!-- Scrollable Content -->
-            <div class="p-4 md:p-6 overflow-y-auto">
-                <form onsubmit="app.handleAddEnquiry(event)" class="space-y-5">
-                    <!-- Fields (same as previous version) -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div class="group">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide group-focus-within:text-blue-400 transition-colors">Date</label>
-                            <div class="relative">
-                                <i data-lucide="calendar" class="absolute left-4 top-3.5 text-slate-500 w-5 h-5 group-focus-within:text-blue-400 transition-colors"></i>
-                                <input required type="date" id="input-date" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-white placeholder-slate-600 appearance-none">
-                            </div>
-                        </div>
-                        <div class="group">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide group-focus-within:text-blue-400 transition-colors">Contact Person Name</label>
-                            <input required type="text" id="input-name" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-white placeholder-slate-600" placeholder="e.g. John Doe">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div class="group">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide group-focus-within:text-blue-400 transition-colors">Company Name</label>
-                            <input required type="text" id="input-company" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-white placeholder-slate-600" placeholder="e.g. Acme Industries">
-                        </div>
-                        <div class="group">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide group-focus-within:text-blue-400 transition-colors">Company Website (Optional)</label>
-                            <input type="url" id="input-website" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-white placeholder-slate-600" placeholder="https://">
-                        </div>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div class="group">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide group-focus-within:text-blue-400 transition-colors">Mobile Number</label>
-                            <input required type="tel" id="input-mobile" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-white placeholder-slate-600">
-                        </div>
-                        <div class="group">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide group-focus-within:text-blue-400 transition-colors">Company Email</label>
-                            <input required type="email" id="input-email" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-white placeholder-slate-600">
-                        </div>
-                    </div>
-                    <div class="group">
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide group-focus-within:text-blue-400 transition-colors">Personal/Contact Address</label>
-                        <input required type="text" id="input-address" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-white placeholder-slate-600">
-                    </div>
-                    <div class="group">
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide group-focus-within:text-blue-400 transition-colors">Company Address</label>
-                        <input required type="text" id="input-company-address" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-white placeholder-slate-600">
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div class="group">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide group-focus-within:text-blue-400 transition-colors">Country</label>
-                            <select required id="input-country" onchange="app.populateStates()" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-white placeholder-slate-600">
-                                <option value="" disabled selected>Select Country</option>
-                            </select>
-                        </div>
-                        <div class="group">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide group-focus-within:text-blue-400 transition-colors">State / Province</label>
-                            <select required id="input-state" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all text-white placeholder-slate-600">
-                                <option value="" disabled selected>Select Country First</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="group">
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide group-focus-within:text-blue-400 transition-colors">Requirement Description</label>
-                        <textarea required rows="3" id="input-desc" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all resize-none text-white placeholder-slate-600"></textarea>
-                    </div>
-                    <div class="flex flex-col-reverse sm:flex-row gap-4 pt-6 mt-4 border-t border-slate-800">
-                        <button type="button" onclick="app.toggleModal('modal-add', false)" class="flex-1 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition-all text-center">Cancel</button>
-                        <button type="submit" class="flex-1 px-4 py-3 rounded-xl font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 active:scale-95 transition-all flex items-center justify-center gap-2">Create Enquiry</button>
-                    </div>
-                </form>
+            <p class="text-slate-500 text-sm mb-6 leading-relaxed" id="confirm-msg"></p>
+            <div class="flex gap-3">
+                <button onclick="app.closeConfirm()" class="flex-1 py-2.5 text-slate-600 bg-slate-50 rounded-xl font-semibold border border-slate-200">Cancel</button>
+                <button onclick="app.confirmAction()" class="flex-1 py-2.5 bg-slate-800 text-white rounded-xl font-bold shadow-lg" id="confirm-btn">Confirm</button>
             </div>
         </div>
     </div>
 
-    <!-- Edit Details Modal -->
-    <div id="modal-edit" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm transition-opacity duration-300">
-        <!-- Exact clone of Add Modal but for Editing -->
-        <div class="bg-slate-900 border border-slate-700/50 rounded-2xl w-full max-w-2xl p-0 shadow-2xl transform transition-all scale-100 ring-1 ring-white/10 max-h-[90vh] overflow-hidden flex flex-col">
-            <div class="p-4 md:p-6 pb-4 bg-slate-900/95 backdrop-blur-md sticky top-0 z-10 border-b border-slate-800">
-                <h2 class="text-xl md:text-2xl font-bold flex items-center gap-3 text-white">
-                    <div class="p-2 bg-blue-500/20 rounded-lg text-blue-400">
-                        <i data-lucide="pencil" class="w-5 h-5 md:w-6 md:h-6"></i>
-                    </div>
-                    Edit Details: <span id="edit-id-display" class="font-mono text-blue-400 text-lg"></span>
-                </h2>
-            </div>
+    <!-- Payment Modal -->
+    <div id="modal-payment" class="hidden fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl overflow-hidden flex flex-col">
+            <h2 class="text-xl font-bold text-slate-800 mb-2">Update Payment</h2>
+            <p class="text-slate-500 text-sm mb-4">Order ID: <span id="payment-id-display" class="font-mono text-blue-600 font-bold"></span></p>
             
-            <div class="p-4 md:p-6 overflow-y-auto">
-                <form onsubmit="app.handleEditSubmit(event)" class="space-y-5">
-                    <!-- Price Field (Conditional) -->
-                    <div id="edit-price-wrapper" class="group hidden">
-                        <label class="block text-xs font-semibold text-emerald-400 mb-1.5 uppercase tracking-wide">Quoted Price (₹)</label>
-                        <div class="relative">
-                            <i data-lucide="indian-rupee" class="absolute left-4 top-3.5 text-slate-500 w-5 h-5 group-focus-within:text-emerald-400 transition-colors"></i>
-                            <input type="number" id="edit-price" min="0" class="w-full bg-slate-950/50 border border-emerald-500/30 rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-white placeholder-slate-600 font-bold text-lg">
-                        </div>
-                    </div>
-
-                    <!-- SAME FIELDS AS ADD FORM, JUST DIFFERENT IDs -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div class="group">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Date</label>
-                            <input required type="date" id="edit-date" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-white appearance-none">
-                        </div>
-                        <div class="group">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Contact Person Name</label>
-                            <input required type="text" id="edit-name" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-white">
-                        </div>
-                    </div>
-                    <!-- Company Info -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div class="group">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Company Name</label>
-                            <input required type="text" id="edit-company" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-white">
-                        </div>
-                        <div class="group">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Company Website</label>
-                            <input type="url" id="edit-website" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-white">
-                        </div>
-                    </div>
-                    <!-- Contact -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div class="group">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Mobile Number</label>
-                            <input required type="tel" id="edit-mobile" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-white">
-                        </div>
-                        <div class="group">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Company Email</label>
-                            <input required type="email" id="edit-email" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-white">
-                        </div>
-                    </div>
-                    <!-- Address -->
-                    <div class="group">
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Personal/Contact Address</label>
-                        <input required type="text" id="edit-address" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-white">
-                    </div>
-                    <div class="group">
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Company Address</label>
-                        <input required type="text" id="edit-company-address" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-white">
-                    </div>
-                    <!-- Location -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div class="group">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Country</label>
-                            <select required id="edit-country" onchange="app.populateEditStates()" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-white">
-                                <!-- Populated by JS -->
-                            </select>
-                        </div>
-                        <div class="group">
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">State / Province</label>
-                            <select required id="edit-state" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-white">
-                                <!-- Populated by JS -->
-                            </select>
-                        </div>
-                    </div>
-                    <div class="group">
-                        <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Requirement Description</label>
-                        <textarea required rows="3" id="edit-desc" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl px-4 py-3 focus:outline-none focus:border-blue-500 text-white resize-none"></textarea>
-                    </div>
-
-                    <div class="flex flex-col-reverse sm:flex-row gap-4 pt-6 mt-4 border-t border-slate-800">
-                        <button type="button" onclick="app.toggleModal('modal-edit', false)" class="flex-1 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition-all text-center">Cancel</button>
-                        <button type="submit" class="flex-1 px-4 py-3 rounded-xl font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/25 active:scale-95 transition-all flex items-center justify-center gap-2">Update Details</button>
-                    </div>
-                </form>
+            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200 mb-4">
+                <div class="flex justify-between text-sm mb-1">
+                    <span class="text-slate-500">Net Payable:</span>
+                    <span class="font-bold text-slate-800" id="payment-total-display">₹0</span>
+                </div>
+                <div class="flex justify-between text-sm mb-1">
+                    <span class="text-slate-500">Already Paid:</span>
+                    <span class="font-bold text-emerald-600" id="payment-paid-display">₹0</span>
+                </div>
+                 <div class="flex justify-between text-sm border-t border-slate-200 pt-1 mt-1">
+                    <span class="text-slate-500 font-bold">Balance:</span>
+                    <span class="font-bold text-red-500" id="payment-remaining-display">₹0</span>
+                </div>
             </div>
-        </div>
-    </div>
 
-    <!-- Convert Modal (Price Only) -->
-    <div id="modal-convert" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm transition-opacity duration-300">
-        <div class="bg-slate-900 border border-slate-700/50 rounded-2xl w-full max-w-sm p-6 md:p-8 shadow-2xl ring-1 ring-white/10">
-            <h2 id="modal-convert-title" class="text-xl md:text-2xl font-bold mb-2 text-white">Generate Quotation</h2>
-            <p class="text-slate-400 text-sm mb-8">Ref ID: <span id="convert-id-display" class="font-mono text-blue-400 bg-blue-400/10 px-1.5 py-0.5 rounded"></span></p>
-            
-            <form onsubmit="app.handleConvertSubmit(event)" class="space-y-6">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-400 mb-1.5 uppercase tracking-wide">Quoted Price (₹)</label>
-                    <div class="relative group">
-                        <i data-lucide="indian-rupee" class="absolute left-4 top-3.5 text-slate-500 w-5 h-5 group-focus-within:text-purple-400 transition-colors"></i>
-                        <input required id="input-price" type="number" min="0" placeholder="0.00" class="w-full bg-slate-950/50 border border-slate-700/50 rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all text-xl font-bold text-white placeholder-slate-600">
+            <div class="space-y-4">
+                <div id="payment-mode-selector">
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-2">Payment Type</label>
+                    <div class="flex gap-2">
+                        <button type="button" onclick="app.setPaymentType('full')" id="btn-pay-full" class="flex-1 py-2 border rounded-lg text-sm font-medium border-blue-500 text-blue-600 bg-blue-50">Settle Balance</button>
+                        <button type="button" onclick="app.setPaymentType('partial')" id="btn-pay-partial" class="flex-1 py-2 border rounded-lg text-sm font-medium border-slate-200 text-slate-600">Partial Amount</button>
                     </div>
                 </div>
                 
-                <div class="flex flex-col-reverse sm:flex-row gap-4 mt-8">
-                    <button type="button" onclick="app.toggleModal('modal-convert', false)" class="flex-1 px-4 py-3 rounded-xl font-semibold text-slate-400 hover:bg-slate-800 hover:text-white transition-all text-center">Cancel</button>
-                    <button type="submit" class="flex-1 px-4 py-3 rounded-xl font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white shadow-lg shadow-purple-500/25 active:scale-95 transition-all text-center" id="modal-convert-btn-text">Confirm Quote</button>
+                <div id="payment-amount-container" class="hidden">
+                     <label class="block text-xs font-semibold text-slate-500 uppercase mb-1" id="payment-input-label">Enter Amount to Pay (₹)</label>
+                     <input type="number" id="input-payment-amount" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-slate-800 focus:outline-none focus:border-blue-500 text-lg font-bold" placeholder="0" oninput="app.calcPending()">
+                     <div class="text-right text-xs text-slate-400 mt-1" id="payment-calc-feedback"></div>
+                </div>
+                
+                <div class="flex gap-3 pt-4" id="payment-actions-row">
+                    <button onclick="app.toggleModal('modal-payment', false)" class="flex-1 py-2 text-slate-500 bg-slate-50 rounded-lg">Cancel</button>
+                    <button onclick="app.submitPayment()" class="flex-1 py-2 bg-emerald-600 text-white rounded-lg font-bold shadow-lg shadow-emerald-200" id="btn-confirm-pay">Confirm Payment</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancellation / Services Modal -->
+    <div id="modal-cancel-split" class="hidden fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-md p-0 shadow-2xl overflow-hidden flex flex-col transform transition-all scale-100">
+            <div class="p-5 border-b border-slate-100 bg-slate-50">
+                <h2 class="text-lg font-bold text-slate-800">Cancel Services</h2>
+                <p class="text-xs text-slate-500 mt-1">Select services to remove from Order <span id="split-id-display" class="font-mono text-blue-600"></span></p>
+            </div>
+            <div class="p-5 overflow-y-auto max-h-[60vh]">
+                <div class="text-xs text-amber-600 bg-amber-50 p-3 rounded-lg border border-amber-100 mb-4 font-medium">
+                    <i data-lucide="info" class="w-3 h-3 inline mr-1"></i> Selected services will be cancelled from this order. Payment history remains on this card.
+                </div>
+                <div id="split-services-list" class="space-y-3"></div>
+            </div>
+            <div class="p-4 border-t border-slate-100 flex justify-end gap-3 bg-slate-50">
+                <button onclick="app.toggleModal('modal-cancel-split', false)" class="px-4 py-2 text-slate-500 bg-slate-50 text-sm font-medium">Close</button>
+                <button onclick="app.processCancellation()" class="px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-bold shadow-md">Confirm Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manage Services Modal -->
+    <div id="modal-manage-services" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-3xl p-0 shadow-2xl max-h-[85vh] overflow-hidden flex flex-col">
+            <div class="p-6 pb-4 bg-slate-50 border-b border-slate-200 flex justify-between items-center">
+                <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3"><i data-lucide="settings" class="text-blue-500"></i> Manage Services</h2>
+                <button onclick="app.toggleModal('modal-manage-services', false)" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto bg-white" id="manage-services-content"></div>
+            <div class="p-4 border-t border-slate-200 bg-slate-50 flex justify-between items-center">
+                <button onclick="app.addServiceDefinition()" class="text-sm bg-white text-blue-600 px-4 py-2 rounded-lg border border-blue-200 flex items-center gap-2 font-medium"><i data-lucide="plus" class="w-4 h-4"></i> Add New Service</button>
+                <button onclick="app.saveServiceDefinitions()" class="bg-emerald-600 text-white px-6 py-2 rounded-lg font-semibold shadow-md">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Refund Modal -->
+    <div id="modal-refund" class="hidden fixed inset-0 z-[80] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-md p-0 shadow-2xl overflow-hidden flex flex-col transform transition-all scale-100">
+            <div class="p-5 border-b border-slate-100 bg-slate-50">
+                <h2 class="text-lg font-bold text-slate-800">Process Cancellation / Refund</h2>
+                <p class="text-xs text-slate-500 mt-1">Select specific services to cancel for <span id="refund-id-display" class="font-mono text-blue-600"></span></p>
+            </div>
+            <div class="p-5 overflow-y-auto max-h-[60vh]">
+                <div id="refund-services-list" class="space-y-3"></div>
+            </div>
+            <div class="p-4 border-t border-slate-100 flex justify-end gap-3 bg-slate-50">
+                <button onclick="app.toggleModal('modal-refund', false)" class="px-4 py-2 text-slate-500 text-sm font-medium">Close</button>
+                <button onclick="app.saveRefunds()" class="px-4 py-2 bg-pink-600 text-white rounded-lg text-sm font-bold shadow-md">Confirm Update</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Details Modal -->
+    <div id="modal-view-details" class="hidden fixed inset-0 z-[70] flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
+        <div class="bg-white rounded-2xl w-full max-w-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b border-slate-100 flex justify-between items-start bg-slate-50">
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span id="view-type" class="text-xs font-bold uppercase tracking-wider px-2 py-1 bg-gray-200 rounded text-slate-600">Type</span>
+                        <span id="view-id" class="text-sm font-mono text-slate-400">ID</span>
+                    </div>
+                    <h2 id="view-company" class="text-2xl font-bold text-slate-900"></h2>
+                    <p id="view-date" class="text-sm text-slate-500 mt-1"></p>
+                </div>
+                <button onclick="app.toggleModal('modal-view-details', false)" class="text-slate-400 bg-white p-2 rounded-full border border-slate-200"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-6 text-slate-700">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-slate-50 p-4 border border-slate-200 rounded-xl">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase mb-3">Primary Contact</h4>
+                        <div class="space-y-2 text-sm">
+                            <p class="flex items-center gap-2"><i data-lucide="user" class="w-4 h-4 text-blue-500"></i> <span id="view-name" class="font-medium"></span></p>
+                            <p class="flex items-center gap-2"><i data-lucide="phone" class="w-4 h-4 text-blue-500"></i> <span id="view-mobile"></span></p>
+                            <p class="flex items-center gap-2"><i data-lucide="mail" class="w-4 h-4 text-blue-500"></i> <span id="view-email"></span></p>
+                        </div>
+                    </div>
+                    <div class="bg-slate-50 p-4 border border-slate-200 rounded-xl">
+                        <h4 class="text-xs font-bold text-slate-400 uppercase mb-3">Company Details</h4>
+                        <div class="space-y-2 text-sm">
+                            <p class="flex items-center gap-2"><i data-lucide="globe" class="w-4 h-4 text-purple-500"></i> <span id="view-website"></span></p>
+                            <p class="flex items-center gap-2"><i data-lucide="building" class="w-4 h-4 text-purple-500"></i> <span id="view-company-address"></span></p>
+                            <p class="flex items-center gap-2"><i data-lucide="flag" class="w-4 h-4 text-purple-500"></i> <span id="view-location"></span></p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-slate-900 border-b border-slate-200 pb-2 mb-4">Services & Pricing</h4>
+                    <div id="view-services-list" class="space-y-2"></div>
+                    <div id="view-total-container" class="mt-4 pt-3 border-t border-slate-200 flex justify-end">
+                        <span class="text-lg font-bold text-slate-900">Total: <span id="view-total" class="text-emerald-600"></span></span>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="text-sm font-bold text-slate-900 border-b border-slate-200 pb-2 mb-3">Notes / Description</h4>
+                    <p id="view-desc" class="text-sm leading-relaxed bg-yellow-50 p-4 border border-yellow-100 rounded-xl text-yellow-900"></p>
+                </div>
+                <div id="view-pitch-section" class="hidden">
+                    <h4 class="text-sm font-bold text-slate-900 border-b border-slate-200 pb-2 mb-3">Pitch Strategy</h4>
+                    <p id="view-pitch" class="text-sm leading-relaxed bg-orange-50 p-4 border border-orange-100 text-orange-900 rounded-xl"></p>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end gap-3" id="view-actions"></div>
+        </div>
+    </div>
+
+    <!-- Add Market Research -->
+    <div id="modal-add-research" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm"><div class="bg-white border border-slate-200 rounded-2xl w-full max-w-xl p-0 shadow-2xl max-h-[90vh] overflow-hidden flex flex-col"><div class="p-6 pb-4 bg-slate-50 border-b border-slate-200"><h2 class="text-xl font-bold text-slate-800 flex items-center gap-3"><i data-lucide="globe" class="text-orange-500"></i> Add Company Lead</h2></div><div class="p-6 overflow-y-auto"><form id="form-research" onsubmit="app.handleAddResearch(event)" class="space-y-5"><div class="group"><label class="text-xs font-semibold text-slate-500 uppercase">Company Name *</label><input required type="text" id="res-company" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 focus:border-orange-500 focus:outline-none"></div><div class="grid grid-cols-2 gap-5"><div><label class="text-xs font-semibold text-slate-500 uppercase">Website</label><input type="url" id="res-website" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800"></div><div><label class="text-xs font-semibold text-slate-500 uppercase">Phone</label><input type="tel" id="res-phone" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800"></div></div><div><label class="text-xs font-semibold text-slate-500 uppercase">Email</label><input type="email" id="res-email" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800"></div><div><label class="text-xs font-semibold text-slate-500 uppercase">Description</label><textarea rows="2" id="res-desc" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800"></textarea></div><div><label class="text-xs font-semibold text-orange-500 uppercase">Pitch Planning</label><textarea rows="3" id="res-pitch" class="w-full bg-white border border-orange-200 rounded-xl px-4 py-3 text-slate-800 bg-orange-50/20"></textarea></div><div class="flex gap-4 pt-4"><button type="button" onclick="app.toggleModal('modal-add-research', false)" class="flex-1 py-3 text-slate-500 bg-slate-50 rounded-xl font-medium">Cancel</button><button type="submit" class="flex-1 py-3 rounded-xl bg-orange-600 text-white font-bold">Add Company</button></div></form></div></div></div>
+
+    <!-- Add/Edit Enquiry Modal -->
+    <div id="modal-form" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm"><div class="bg-white border border-slate-200 rounded-2xl w-full max-w-2xl p-0 shadow-2xl max-h-[90vh] overflow-hidden flex flex-col"><div class="p-6 pb-4 bg-slate-50 border-b border-slate-200"><h2 class="text-xl font-bold text-slate-800 flex items-center gap-3" id="modal-title"></h2></div><div class="p-6 overflow-y-auto"><form id="main-form" onsubmit="app.handleFormSubmit(event)" class="space-y-5">
+        <input type="hidden" id="form-mode" value="add">
+        <div class="grid grid-cols-2 gap-5"><div><label class="text-xs font-semibold text-slate-500 uppercase">Date *</label><input required type="date" id="f-date" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800 focus:outline-none focus:border-blue-500"></div><div><label class="text-xs font-semibold text-slate-500 uppercase">Contact Name *</label><input required type="text" id="f-name" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800"></div></div>
+        
+        <div class="border-t border-slate-200 pt-4">
+            <div class="flex justify-between items-center mb-3">
+                <label class="text-sm font-bold text-slate-700 uppercase">Services</label>
+                <div class="flex gap-3">
+                    <button type="button" onclick="app.openManageServices()" class="text-xs text-slate-500 flex gap-1 items-center hover:text-blue-600 transition-colors"><i data-lucide="settings" class="w-3 h-3"></i> Manage List</button>
+                    <button type="button" onclick="app.addServiceRow('service-container', app.state.isPriceVisible)" class="text-xs text-blue-600 flex gap-1 items-center hover:text-blue-800 font-medium"><i data-lucide="plus-circle" class="w-4 h-4"></i> Add Service</button>
+                </div>
+            </div>
+            <div id="service-container" class="space-y-3"></div>
+            <div id="total-display" class="text-right mt-2 text-emerald-600 font-bold hidden">Total: ₹0</div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-5"><div><label class="text-xs font-semibold text-slate-500 uppercase">Company Name *</label><input required type="text" id="f-company" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800"></div><div><label class="text-xs font-semibold text-slate-500 uppercase">Website</label><input type="url" id="f-website" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800"></div></div>
+        <div class="grid grid-cols-2 gap-5"><div><label class="text-xs font-semibold text-slate-500 uppercase">Mobile *</label><input required type="tel" pattern="[0-9]{10,15}" title="10-15 digits" id="f-mobile" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800"></div><div><label class="text-xs font-semibold text-slate-500 uppercase">Email *</label><input required type="email" id="f-email" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800"></div></div>
+        
+        <div class="group"><label class="text-xs font-semibold text-slate-500 uppercase">Company Address *</label><input required type="text" id="f-company-address" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800"></div>
+        
+        <div class="grid grid-cols-2 gap-5"><div><label class="text-xs font-semibold text-slate-500 uppercase">Country</label><select id="f-country" onchange="app.populateStates('f-country','f-state')" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800"></select></div><div><label class="text-xs font-semibold text-slate-500 uppercase">State</label><select id="f-state" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800"></select></div></div>
+        <div class="group"><label class="text-xs font-semibold text-slate-500 uppercase">Description</label><textarea rows="3" id="f-desc" class="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-800"></textarea></div>
+        <div id="pitch-wrapper" class="hidden group"><label class="text-xs font-semibold text-orange-500 uppercase">Pitch Plan</label><textarea rows="3" id="f-pitch" class="w-full bg-white border border-orange-200 rounded-xl px-4 py-3 text-slate-800"></textarea></div>
+
+        <div class="flex gap-4 pt-4 border-t border-slate-200"><button type="button" onclick="app.toggleModal('modal-form', false)" class="flex-1 py-3 text-slate-500 bg-slate-50 rounded-xl font-medium">Cancel</button><button type="submit" id="form-btn" class="flex-1 py-3 bg-blue-600 text-white rounded-xl font-bold">Save</button></div>
+    </form></div></div></div>
+
+    <!-- Convert Quote/Order Modal (No Price Arrows) -->
+    <div id="modal-convert" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm transition-opacity duration-300">
+        <div class="bg-white border border-slate-200 rounded-2xl w-full max-w-sm p-6 shadow-2xl">
+            <h2 id="modal-convert-title" class="text-xl font-bold mb-2 text-slate-800">Generate Quotation</h2>
+            <p class="text-slate-500 text-sm mb-6">Ref ID: <span id="convert-id-display" class="font-mono text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded"></span></p>
+            <form onsubmit="app.handleConvertSubmit(event)" class="space-y-4">
+                <div id="convert-services-container" class="space-y-3 max-h-60 overflow-y-auto pr-1"></div>
+                <div id="convert-fallback-price" class="hidden"><label class="block text-xs font-semibold text-slate-500 mb-1.5 uppercase">Total Price (₹)</label><div class="relative group"><i data-lucide="indian-rupee" class="absolute left-4 top-3.5 text-slate-400 w-5 h-5"></i><input id="input-price-fallback" type="number" min="0" placeholder="0.00" class="w-full bg-white border border-slate-300 rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:border-purple-500 text-xl font-bold text-slate-800"></div></div>
+                <div id="convert-total-display" class="text-right font-bold text-emerald-600 text-lg border-t border-slate-200 pt-3">Total: ₹0</div>
+                
+                <div id="convert-order-actions" class="hidden flex flex-col gap-3 mt-4">
+                     <button type="button" onclick="app.triggerUploadForConvert()" class="w-full py-3 border border-blue-200 bg-blue-50 text-blue-600 flex items-center justify-center gap-2 rounded-xl"><i data-lucide="upload" class="w-4 h-4"></i> Upload PO & Convert</button>
+                     <button type="button" onclick="app.submitConvertOrder(false)" class="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl">Continue without PO</button>
+                     <button type="button" onclick="app.toggleModal('modal-convert', false)" class="w-full py-3 text-slate-500 bg-slate-50 rounded-xl font-bold">Cancel</button>
+                </div>
+                <div id="convert-quote-actions" class="flex flex-col-reverse sm:flex-row gap-4 mt-6">
+                    <button type="button" onclick="app.toggleModal('modal-convert', false)" class="flex-1 px-4 py-3 rounded-xl font-semibold text-slate-500 text-center">Cancel</button>
+                    <button type="submit" class="flex-1 px-4 py-3 rounded-xl font-semibold bg-purple-600 text-white shadow-lg active:scale-95 transition-all text-center" id="modal-convert-btn-text">Confirm</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Application Logic -->
     <script>
-        // --- DATA CONSTANTS ---
-        const countryData = {
-            "USA": ["Alabama", "Alaska", "Arizona", "California", "Florida", "New York", "Texas", "Washington"],
-            "India": ["Andhra Pradesh", "Delhi", "Gujarat", "Karnataka", "Maharashtra", "Odisha", "Tamil Nadu", "Telangana", "Uttar Pradesh", "West Bengal"],
-            "UK": ["England", "Scotland", "Wales", "Northern Ireland"],
-            "Canada": ["Alberta", "British Columbia", "Ontario", "Quebec"],
-            "Australia": ["New South Wales", "Queensland", "Victoria", "Western Australia"],
-            "Germany": ["Bavaria", "Berlin", "Hamburg", "Hesse"],
-            "France": ["Île-de-France", "Normandy", "Brittany", "Provence"],
-            "Japan": ["Tokyo", "Osaka", "Kyoto", "Hokkaido"],
-            "China": ["Beijing", "Shanghai", "Guangdong", "Sichuan"],
-            "Brazil": ["São Paulo", "Rio de Janeiro", "Bahia", "Amazonas"]
-        };
+        const countries = { "USA": ["New York", "California"], "India": ["Delhi", "Mumbai", "Bangalore"], "UK": ["London", "Manchester"] };
+        function handleLogin(e) { e.preventDefault(); if(document.getElementById('password-input').value === '12345') { document.getElementById('login-section').classList.add('hidden'); document.getElementById('crm-app').classList.remove('hidden'); setTimeout(()=>document.getElementById('crm-app').classList.remove('opacity-0'),50); } else { document.getElementById('login-error').classList.remove('hidden'); } }
 
-        // --- LOGIN LOGIC ---
-        function handleLogin(e) {
-            e.preventDefault();
-            const password = document.getElementById('password-input').value;
-            const loginSection = document.getElementById('login-section');
-            const crmApp = document.getElementById('crm-app');
-            const errorMsg = document.getElementById('login-error');
-            const loginCard = document.getElementById('login-card');
-
-            if (password === '12345') {
-                errorMsg.classList.add('hidden');
-                loginSection.classList.add('opacity-0', 'scale-105', 'pointer-events-none');
-                setTimeout(() => {
-                    loginSection.classList.add('hidden');
-                    crmApp.classList.remove('hidden');
-                    requestAnimationFrame(() => {
-                        crmApp.classList.remove('opacity-0');
-                    });
-                }, 500);
-            } else {
-                errorMsg.classList.remove('hidden');
-                loginCard.classList.add('animate-shake');
-                setTimeout(() => loginCard.classList.remove('animate-shake'), 500);
-            }
-        }
-
-        // --- CRM LOGIC ---
         class PixelCRM {
             constructor() {
-                this.state = {
-                    activeTab: 'enquiry', 
-                    subTab: 'active',     
-                    selectedItemId: null,
-                    searchQuery: '',
-                    items: [],
-                    uploadingItemId: null,
-                    modalMode: 'convert' // 'convert' or 'edit'
-                };
-
-                this.navItems = [
-                    { id: 'enquiry', label: 'Enquiries', icon: 'message-square', colorClass: 'text-blue-400', borderClass: 'border-blue-500' },
-                    { id: 'quotation', label: 'Quotations', icon: 'file-text', colorClass: 'text-purple-400', borderClass: 'border-purple-500' },
-                    { id: 'order', label: 'Orders', icon: 'shopping-cart', colorClass: 'text-emerald-400', borderClass: 'border-emerald-500' },
-                    { id: 'revenue', label: 'Revenue', icon: 'bar-chart-3', colorClass: 'text-amber-400', borderClass: 'border-amber-500' }
-                ];
-
+                this.state = { activeTab: 'enquiry', subTab: 'active', searchQuery: '', items: [], selectedItemId: null, isPriceVisible: false, modalMode: 'convert', convertTargetType: '', paymentType: 'full', serviceData: { "Web Dev": ["Frontend", "Backend"], "Design": ["UI/UX", "Logo"], "Marketing": ["SEO", "Ads"] } };
+                this.navItems = [ { id: 'enquiry', label: 'Enquiries', icon: 'message-square', color: 'blue' }, { id: 'quotation', label: 'Quotations', icon: 'file-text', color: 'purple' }, { id: 'order', label: 'Orders', icon: 'shopping-cart', color: 'emerald' }, { id: 'market-research', label: 'Market Research', icon: 'globe', color: 'orange' }, { id: 'revenue', label: 'Revenue', icon: 'bar-chart-3', color: 'amber' } ];
+                this.pendingConfirmAction = null;
+                
+                // Add Dummy Data (Enquiries)
+                this.state.items = [];
+                
                 this.init();
             }
-
-            init() {
-                this.populateCountries('input-country');
-                this.populateCountries('edit-country');
-                const dateInput = document.getElementById('input-date');
-                if(dateInput) dateInput.valueAsDate = new Date();
+            init() { this.populateDropdown('f-country', Object.keys(countries)); this.populateDropdown('res-company', []); document.getElementById('f-date').valueAsDate = new Date(); this.render(); lucide.createIcons(); }
+            populateDropdown(id, list) { const el = document.getElementById(id); if(!el) return; el.innerHTML = '<option value="" disabled selected>Select</option>'; list.forEach(i => el.innerHTML += `<option value="${i}">${i}</option>`); }
+            populateStates(cId, sId) { const country = document.getElementById(cId).value; const states = countries[country] || []; this.populateDropdown(sId, states); }
+            setActiveTab(tab) { this.state.activeTab = tab; this.state.subTab = 'active'; this.render(); }
+            setSubTab(tab) { this.state.subTab = tab; this.render(); }
+            handleSearch(val) { this.state.searchQuery = val.toLowerCase(); this.renderList(); }
+            toggleModal(id, show) { const el = document.getElementById(id); if(show) { el.classList.remove('hidden'); if(id.includes('add') && !id.includes('manage')) document.forms[0].reset(); } else el.classList.add('hidden'); }
+            
+            // --- Financial Helper ---
+            getFinancials(item) {
+                const totalValue = item.value || 0;
+                // If cancelled, Net Payable is 0 (we owe everything back). 
+                // Otherwise, it's the total value.
+                const netPayable = item.isCancelled ? 0 : totalValue; 
+                const paidAmount = item.paidAmount || 0;
                 
-                this.render();
-                lucide.createIcons();
+                // Balance > 0 means Pending. Balance < 0 means Refund Due.
+                const balance = netPayable - paidAmount;
+                
+                return { totalValue, netPayable, paidAmount, balance };
             }
 
-            populateCountries(elementId) {
-                const countrySelect = document.getElementById(elementId);
-                if(!countrySelect) return;
+            // --- Custom Confirm Modal ---
+            showConfirm(title, msg, actionBtnText, colorClass, callback) {
+                this.pendingConfirmAction = callback;
+                document.getElementById('confirm-title').textContent = title;
+                document.getElementById('confirm-msg').innerText = msg;
+                const btn = document.getElementById('confirm-btn');
+                btn.textContent = actionBtnText;
+                btn.className = `flex-1 py-2.5 text-white rounded-xl font-bold shadow-lg transition-all ${colorClass}`;
+                this.toggleModal('modal-confirm', true);
+            }
+            confirmAction() {
+                if(this.pendingConfirmAction) this.pendingConfirmAction();
+                this.toggleModal('modal-confirm', false);
+                this.pendingConfirmAction = null;
+            }
+            closeConfirm() {
+                this.toggleModal('modal-confirm', false);
+                this.pendingConfirmAction = null;
+            }
+
+            // --- Services ---
+            openManageServices() {
+                const container = document.getElementById('manage-services-content'); container.innerHTML = '';
+                Object.keys(this.state.serviceData).forEach(service => {
+                    const cats = this.state.serviceData[service];
+                    const catInputs = cats.map(c => `<div class="flex gap-2 items-center mb-1 category-def-row"><input type="text" value="${c}" class="cat-def-input flex-1 bg-white border border-slate-300 rounded p-1.5 text-sm text-slate-700"><button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-600"><i data-lucide="trash" class="w-3 h-3"></i></button></div>`).join('');
+                    const html = `<div class="service-def-block bg-slate-50 border border-slate-200 rounded-xl p-4 mb-4"><div class="flex gap-3 mb-3"><input type="text" value="${service}" class="service-def-name flex-1 bg-white border border-blue-200 rounded-lg p-2 text-slate-800 font-bold placeholder-Service Name"><button onclick="this.closest('.service-def-block').remove()" class="p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div><div class="pl-4 border-l-2 border-slate-200"><label class="text-xs text-slate-400 uppercase font-bold mb-2 block">Categories</label><div class="cat-container">${catInputs}</div><button onclick="app.addCategoryDef(this)" class="mt-2 text-xs text-blue-500 hover:text-blue-700 flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> Add Category</button></div></div>`;
+                    container.insertAdjacentHTML('beforeend', html);
+                });
+                this.toggleModal('modal-manage-services', true); lucide.createIcons();
+            }
+            addServiceDefinition() {
+                const container = document.getElementById('manage-services-content');
+                const html = `<div class="service-def-block bg-slate-50 border border-slate-200 rounded-xl p-4 mb-4"><div class="flex gap-3 mb-3"><input type="text" class="service-def-name flex-1 bg-white border border-blue-200 rounded-lg p-2 text-slate-800 font-bold placeholder-New Service Name"><button onclick="this.closest('.service-def-block').remove()" class="p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div><div class="pl-4 border-l-2 border-slate-200"><label class="text-xs text-slate-400 uppercase font-bold mb-2 block">Categories</label><div class="cat-container"></div><button onclick="app.addCategoryDef(this)" class="mt-2 text-xs text-blue-500 hover:text-blue-700 flex items-center gap-1"><i data-lucide="plus" class="w-3 h-3"></i> Add Category</button></div></div>`;
+                container.insertAdjacentHTML('beforeend', html); lucide.createIcons();
+            }
+            addCategoryDef(btn) {
+                const container = btn.previousElementSibling;
+                const html = `<div class="flex gap-2 items-center mb-1 category-def-row"><input type="text" class="cat-def-input flex-1 bg-white border border-slate-300 rounded p-1.5 text-sm text-slate-700" placeholder="Category Name"><button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-600"><i data-lucide="trash" class="w-3 h-3"></i></button></div>`;
+                container.insertAdjacentHTML('beforeend', html); lucide.createIcons();
+            }
+            saveServiceDefinitions() {
+                const blocks = document.querySelectorAll('.service-def-block'); const newData = {};
+                blocks.forEach(block => { const name = block.querySelector('.service-def-name').value.trim(); if(name) { const cats = []; block.querySelectorAll('.cat-def-input').forEach(inp => { if(inp.value.trim()) cats.push(inp.value.trim()); }); newData[name] = cats; } });
+                this.state.serviceData = newData; 
+                this.refreshServiceDropdowns(); 
+                this.toggleModal('modal-manage-services', false);
+            }
+            refreshServiceDropdowns() {
+                 const selects = document.querySelectorAll('.s-select');
+                 selects.forEach(select => {
+                     const currentVal = select.value;
+                     const sOpts = Object.keys(this.state.serviceData).map(k=>`<option value="${k}" ${k===currentVal?'selected':''}>${k}</option>`).join('');
+                     select.innerHTML = `<option value="" disabled ${!currentVal?'selected':''}>Service</option>${sOpts}<option value="NEW" class="text-blue-500 font-bold">+ Add New</option>`;
+                 });
+            }
+            addServiceRow(containerId, showPrice = false, s='', c='', a=0) {
+                const id = Math.random().toString(36).substr(2,9);
+                const sOpts = Object.keys(this.state.serviceData).map(k=>`<option value="${k}" ${k===s?'selected':''}>${k}</option>`).join('');
+                let cOpts = s && this.state.serviceData[s] ? this.state.serviceData[s].map(k=>`<option value="${k}" ${k===c?'selected':''}>${k}</option>`).join('') : '';
+                const html = `<div class="flex gap-2 items-start service-row" id="row-${id}"><div class="grid grid-cols-2 gap-2 flex-1"><select class="s-select w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-800" onchange="app.updateCats(this)"><option value="" disabled ${!s?'selected':''}>Service</option>${sOpts}<option value="NEW" class="text-blue-500 font-bold">+ Add New</option></select><select class="c-select w-full bg-white border border-slate-300 rounded-lg p-2 text-slate-800" onchange="app.handleCategoryChange(this)"><option value="" disabled ${!c?'selected':''}>Category</option>${cOpts}<option value="NEW" class="text-blue-500 font-bold">+ Add New</option></select></div>${showPrice ? `<input type="number" value="${a || ''}" class="s-amount w-24 bg-white border border-emerald-500/50 rounded-lg p-2 text-slate-800 text-right font-bold" placeholder="0" oninput="app.calcTotal()">` : ''}<button type="button" onclick="this.parentElement.remove();app.calcTotal()" class="p-2 text-red-400 hover:text-red-600"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div>`;
+                document.getElementById(containerId).insertAdjacentHTML('beforeend', html); lucide.createIcons();
+            }
+            updateCats(el) { if(el.value === 'NEW') { this.openManageServices(); el.value = ""; return; } const catEl = el.nextElementSibling; const cats = this.state.serviceData[el.value] || []; catEl.innerHTML = '<option value="" disabled selected>Category</option>' + cats.map(c=>`<option value="${c}">${c}</option>`).join('') + '<option value="NEW" class="text-blue-500 font-bold">+ Add New</option>'; }
+            handleCategoryChange(el) { if(el.value === 'NEW') { this.openManageServices(); el.value = ""; } }
+            calcTotal() { if(!this.state.isPriceVisible) return; const inputs = document.querySelectorAll('.s-amount'); let t = 0; inputs.forEach(i => t += Number(i.value)); document.getElementById('total-display').innerText = 'Total: ₹' + t.toLocaleString(); }
+
+            openAddEnquiry() { this.state.isPriceVisible = false; const form = document.getElementById('main-form'); form.reset(); document.getElementById('service-container').innerHTML = ''; document.getElementById('modal-title').innerText = 'New Enquiry'; document.getElementById('form-mode').value = 'add'; document.getElementById('form-btn').innerText = 'Create Enquiry'; document.getElementById('total-display').classList.add('hidden'); document.getElementById('pitch-wrapper').classList.add('hidden'); document.getElementById('f-date').valueAsDate = new Date(); this.addServiceRow('service-container', false); this.toggleModal('modal-form', true); }
+            openAddResearch() { document.getElementById('form-research').reset(); this.toggleModal('modal-add-research', true); }
+            
+            openEdit(id, convert = false) {
+                // IMPORTANT: Close view modal if open
+                this.toggleModal('modal-view-details', false);
+
+                const item = this.state.items.find(i => i.id === id); if(!item) return;
+                this.state.selectedItemId = id; 
+                if(convert) { const target = item.type === 'enquiry' ? 'quotation' : 'order'; this.openConvertModal(id, target); return; }
+                this.state.isPriceVisible = (item.type !== 'enquiry'); 
+                document.getElementById('modal-title').innerHTML = `Edit Details <span class="text-sm font-mono text-blue-500 ml-2">${id}</span>`;
+                document.getElementById('form-mode').value = 'edit'; document.getElementById('form-btn').innerText = 'Update Details';
+                ['date','name','company','website','mobile','email','companyAddress','country','state','desc'].forEach(f => { const el = document.getElementById('f-'+(f==='companyAddress'?'company-address':f)); if(el) el.value = item[f] || ''; });
+                const pitchWrap = document.getElementById('pitch-wrapper'); if(item.type === 'market-research') { pitchWrap.classList.remove('hidden'); document.getElementById('f-pitch').value = item.pitch || ''; } else pitchWrap.classList.add('hidden');
+                const cont = document.getElementById('service-container'); cont.innerHTML = '';
+                if(item.services && item.services.length) item.services.forEach(s => this.addServiceRow('service-container', this.state.isPriceVisible, s.s, s.c, s.a)); else this.addServiceRow('service-container', this.state.isPriceVisible);
+                const totEl = document.getElementById('total-display'); if(this.state.isPriceVisible) { totEl.classList.remove('hidden'); this.calcTotal(); } else totEl.classList.add('hidden');
+                this.toggleModal('modal-form', true);
+            }
+            handleAddResearch(e) { e.preventDefault(); const item = { id: this.genId(), type: 'market-research', status: 'active', date: new Date().toISOString().split('T')[0], name: document.getElementById('res-company').value, website: document.getElementById('res-website').value, mobile: document.getElementById('res-phone').value, email: document.getElementById('res-email').value, desc: document.getElementById('res-desc').value, pitch: document.getElementById('res-pitch').value, value: 0 }; this.state.items.push(item); this.toggleModal('modal-add-research', false); this.render(); }
+            handleFormSubmit(e) {
+                e.preventDefault(); const mode = document.getElementById('form-mode').value;
+                const rows = document.querySelectorAll('.service-row'); const services = Array.from(rows).map(r => ({ s: r.querySelector('.s-select').value, c: r.querySelector('.c-select').value, a: Number(r.querySelector('.s-amount')?.value || 0) }));
+                const total = services.reduce((sum, i) => sum + i.a, 0);
+                const data = { date: document.getElementById('f-date').value, name: document.getElementById('f-name').value, company: document.getElementById('f-company').value, website: document.getElementById('f-website').value, mobile: document.getElementById('f-mobile').value, email: document.getElementById('f-email').value, companyAddress: document.getElementById('f-company-address').value, country: document.getElementById('f-country').value, state: document.getElementById('f-state').value, desc: document.getElementById('f-desc').value, pitch: document.getElementById('f-pitch').value, services: services, value: total };
+                if(mode === 'add') { 
+                    this.state.items.push({ id: this.genId(), type: 'enquiry', status: 'active', paymentStatus: 'unpaid', ...data }); 
+                } else { 
+                    const idx = this.state.items.findIndex(i => i.id === this.state.selectedItemId); 
+                    if(idx > -1) {
+                        const item = this.state.items[idx];
+                        Object.assign(item, data);
+                        
+                        // Real-time Calculation: Update payment status if value changed
+                        if (item.type === 'order') {
+                            const fin = this.getFinancials(item);
+                            if (fin.balance <= 0 && fin.paidAmount > 0) item.paymentStatus = 'paid'; // Fully Paid or Refund Due (Settled state for tracking)
+                            else if (fin.paidAmount > 0) item.paymentStatus = 'partial';
+                            else item.paymentStatus = 'unpaid';
+                        }
+                    }
+                }
+                this.toggleModal('modal-form', false); this.render();
+            }
+            genId() { return 'PP' + String(this.state.items.length + 1).padStart(3, '0'); }
+
+            // --- Payment Modal Actions ---
+            setPaymentType(type) {
+                const amountContainer = document.getElementById('payment-amount-container');
+                const paymentActions = document.getElementById('payment-actions-row');
+                const paymentModeSelector = document.getElementById('payment-mode-selector');
+                const fullBtn = document.getElementById('btn-pay-full');
+                const partialBtn = document.getElementById('btn-pay-partial');
+                const label = document.getElementById('payment-input-label');
+                const confirmBtn = document.getElementById('btn-confirm-pay');
                 
-                countrySelect.innerHTML = '<option value="" disabled selected>Select Country</option>';
-                Object.keys(countryData).forEach(country => {
-                    const option = document.createElement('option');
-                    option.value = country;
-                    option.textContent = country;
-                    countrySelect.appendChild(option);
+                const item = this.state.items.find(i => i.id === this.state.selectedItemId);
+                
+                // Get Parent if this is a split item (to check wallet)
+                let parentId = item.parentId || item.id;
+                const parentItem = this.state.items.find(i => i.id === parentId) || item;
+                const fin = this.getFinancials(parentItem); 
+
+                // If refund mode
+                if (type === 'refund') {
+                    this.state.paymentType = 'refund';
+                    paymentModeSelector.classList.add('hidden'); // No full/partial for refund
+                    amountContainer.classList.remove('hidden'); // Show input for refund amount
+                    // Max refund is the DEAD item value, limited by Parent's Paid Amount
+                    const maxRefundable = Math.min(item.value || parentItem.paidAmount, parentItem.paidAmount); // Ensure we don't refund more than item value unless it's full cancel
+                    
+                    label.innerText = `Enter Refund Amount (Max: ₹${maxRefundable.toLocaleString()})`;
+                    document.getElementById('input-payment-amount').value = '';
+                    document.getElementById('input-payment-amount').max = maxRefundable;
+                    document.getElementById('payment-calc-feedback').innerText = '';
+                    confirmBtn.innerText = "Process Refund";
+                    confirmBtn.className = "flex-1 py-2 bg-pink-600 text-white hover:bg-pink-700 rounded-lg font-bold shadow-lg shadow-pink-200";
+                    return;
+                }
+                
+                // Normal Payment flow (only for active items really)
+                // If refund due on ACTIVE item (Balance < 0)
+                if(fin.balance < 0) {
+                     this.state.paymentType = 'refund'; // Treat as refund mode
+                     paymentModeSelector.classList.add('hidden');
+                     amountContainer.classList.remove('hidden');
+                     label.innerText = `Enter Refund Amount (Max: ₹${Math.abs(fin.balance).toLocaleString()})`;
+                     document.getElementById('input-payment-amount').value = '';
+                     document.getElementById('payment-calc-feedback').innerText = '';
+                     confirmBtn.innerText = "Process Refund";
+                     confirmBtn.className = "flex-1 py-2 bg-pink-600 text-white hover:bg-pink-700 rounded-lg font-bold shadow-lg shadow-pink-200";
+                     return;
+                }
+
+                confirmBtn.innerText = "Confirm Payment";
+                confirmBtn.className = "flex-1 py-2 bg-emerald-600 text-white hover:bg-emerald-700 rounded-lg font-bold shadow-lg shadow-emerald-200";
+                label.innerText = "Enter Amount to Pay (₹)";
+                paymentModeSelector.classList.remove('hidden');
+
+                this.state.paymentType = type;
+                if(type === 'full') {
+                    amountContainer.classList.add('hidden');
+                    fullBtn.className = "flex-1 py-2 border rounded-lg text-sm font-medium border-blue-500 text-blue-600 bg-blue-50";
+                    partialBtn.className = "flex-1 py-2 border rounded-lg text-sm font-medium border-slate-200 text-slate-600";
+                } else {
+                    amountContainer.classList.remove('hidden');
+                    partialBtn.className = "flex-1 py-2 border rounded-lg text-sm font-medium border-blue-500 text-blue-600 bg-blue-50";
+                    fullBtn.className = "flex-1 py-2 border rounded-lg text-sm font-medium border-slate-200 text-slate-600";
+                    document.getElementById('input-payment-amount').value = '';
+                    
+                    const feedbackEl = document.getElementById('payment-calc-feedback');
+                    if(fin.balance === 0) {
+                         feedbackEl.innerText = "Fully Paid";
+                         feedbackEl.className = "text-right text-xs text-emerald-500 mt-1 font-bold";
+                    } else {
+                         feedbackEl.innerText = `Pending: ₹${fin.balance.toLocaleString()}`;
+                         feedbackEl.className = "text-right text-xs text-slate-400 mt-1";
+                    }
+                }
+            }
+
+            openPaymentModal(id, mode = null) {
+                this.state.selectedItemId = id;
+                const item = this.state.items.find(i => i.id === id);
+                if(!item) return;
+
+                // For display in modal, show PARENT info if split
+                let parentId = item.parentId || item.id;
+                const parentItem = this.state.items.find(i => i.id === parentId) || item;
+                const fin = this.getFinancials(parentItem);
+
+                document.getElementById('payment-id-display').textContent = parentId;
+                document.getElementById('payment-total-display').textContent = `₹${fin.netPayable.toLocaleString()}`;
+                document.getElementById('payment-paid-display').textContent = `₹${fin.paidAmount.toLocaleString()}`;
+                
+                const remainingEl = document.getElementById('payment-remaining-display');
+                if(fin.balance < 0) {
+                    remainingEl.textContent = `Refund Due: ₹${Math.abs(fin.balance).toLocaleString()}`;
+                    remainingEl.classList.replace('text-red-500', 'text-blue-500');
+                } else {
+                    remainingEl.textContent = `₹${fin.balance.toLocaleString()}`;
+                    remainingEl.classList.replace('text-blue-500', 'text-red-500');
+                }
+                
+                // Determine Mode
+                if (mode === 'refund') {
+                    this.setPaymentType('refund');
+                } else {
+                    // Initialize view - if refund due on active item, setType handles it
+                    this.setPaymentType(fin.balance < 0 ? 'refund' : 'full'); 
+                }
+                
+                this.toggleModal('modal-payment', true);
+            }
+
+            calcPending() {
+                const item = this.state.items.find(i => i.id === this.state.selectedItemId);
+                let parentId = item.parentId || item.id;
+                const parentItem = this.state.items.find(i => i.id === parentId) || item;
+                
+                const inputVal = Number(document.getElementById('input-payment-amount').value);
+                const fin = this.getFinancials(parentItem);
+                const feedbackEl = document.getElementById('payment-calc-feedback');
+
+                if (this.state.paymentType === 'refund') {
+                    // Refund Logic Calculation
+                    let maxRefund = Math.abs(fin.balance);
+                    if(item.isCancelled && item.parentId) {
+                        maxRefund = Math.min(item.value, parentItem.paidAmount);
+                    }
+
+                    if (inputVal > maxRefund) {
+                        feedbackEl.innerText = `Exceeds Limit by: ₹${(inputVal - maxRefund).toLocaleString()}`;
+                        feedbackEl.className = "text-right text-xs text-red-500 mt-1 font-bold";
+                    } else {
+                        feedbackEl.innerText = `Remaining Limit: ₹${(maxRefund - inputVal).toLocaleString()}`;
+                        feedbackEl.className = "text-right text-xs text-blue-500 mt-1";
+                    }
+                } else {
+                    // Payment Logic Calculation
+                    const newBalance = fin.balance - inputVal;
+                    if(newBalance < 0) {
+                         feedbackEl.innerText = `Exceeds Pending by: ₹${Math.abs(newBalance).toLocaleString()}`;
+                         feedbackEl.className = "text-right text-xs text-red-500 mt-1 font-bold";
+                    } else {
+                         feedbackEl.innerText = `Remaining Pending: ₹${newBalance.toLocaleString()}`;
+                         feedbackEl.className = "text-right text-xs text-slate-400 mt-1";
+                    }
+                }
+            }
+
+            submitPayment() {
+                const item = this.state.items.find(i => i.id === this.state.selectedItemId);
+                if(!item) return;
+                
+                let parentId = item.parentId || item.id;
+                const parentItem = this.state.items.find(i => i.id === parentId) || item;
+                
+                const fin = this.getFinancials(parentItem);
+                const amount = Number(document.getElementById('input-payment-amount').value);
+
+                // --- REFUND FLOW ---
+                if(this.state.paymentType === 'refund') {
+                    if (amount <= 0) return alert("Please enter a valid refund amount.");
+                    
+                    let maxRefund = Math.abs(fin.balance);
+                    if(item.isCancelled && item.parentId) {
+                        maxRefund = Math.min(item.value, parentItem.paidAmount);
+                    }
+                    
+                    if (amount > maxRefund) {
+                        return alert(`Amount cannot exceed the refundable limit (₹${maxRefund}).`);
+                    }
+                    
+                    // Deduct from paid amount AND Add to totalRefunded history
+                    parentItem.paidAmount = (parentItem.paidAmount || 0) - amount;
+                    parentItem.totalRefunded = (parentItem.totalRefunded || 0) + amount; // Track history
+                    
+                    // If it was a split dead item, mark as refunded
+                    if(item.isCancelled) item.paymentStatus = 'refunded';
+                    
+                    // Re-evaluate parent status
+                    const newFin = this.getFinancials(parentItem);
+                    if (newFin.balance === 0) parentItem.paymentStatus = 'paid'; // Settled
+                    
+                    this.toggleModal('modal-payment', false);
+                    this.render();
+                    return;
+                }
+
+                // --- PAYMENT FLOW ---
+                if(this.state.paymentType === 'full') {
+                    if(fin.balance > 0) {
+                        parentItem.paidAmount = (parentItem.paidAmount || 0) + fin.balance;
+                    }
+                    parentItem.paymentStatus = 'paid';
+                    this.toggleModal('modal-payment', false);
+                    this.render();
+                } else {
+                    if(amount <= 0) return alert("Please enter a valid amount.");
+                    
+                    // STRICT CHECK: Cannot pay more than pending balance
+                    if(amount > fin.balance) {
+                         alert(`Amount Exceeding Pending Balance.\n\nYou cannot accept a payment of ₹${amount} because the pending balance is only ₹${fin.balance}.`);
+                         return; 
+                    }
+                    
+                    parentItem.paidAmount = (parentItem.paidAmount || 0) + amount;
+                    const newFin = this.getFinancials(parentItem);
+                    if(newFin.balance <= 0) parentItem.paymentStatus = 'paid';
+                    else parentItem.paymentStatus = 'partial';
+                    
+                    this.toggleModal('modal-payment', false);
+                    this.render();
+                }
+            }
+
+            openConvertModal(id, targetType = 'quotation') {
+                this.state.selectedItemId = id; this.state.modalMode = 'convert'; this.state.convertTargetType = targetType;
+                const item = this.state.items.find(i => i.id === id);
+                document.getElementById('convert-id-display').textContent = id;
+                document.getElementById('modal-convert-title').textContent = targetType === 'order' ? "Finalize Order" : "Generate Quotation";
+                document.getElementById('modal-convert-btn-text').textContent = targetType === 'order' ? "Confirm Order" : "Confirm Quote";
+                const container = document.getElementById('convert-services-container'); const fallback = document.getElementById('convert-fallback-price'); const quoteActions = document.getElementById('convert-quote-actions'); const orderActions = document.getElementById('convert-order-actions');
+                container.innerHTML = '';
+                if(targetType === 'order') {
+                    quoteActions.classList.add('hidden'); orderActions.classList.remove('hidden'); fallback.classList.add('hidden'); container.classList.remove('hidden');
+                    if(item.services && item.services.length) item.services.forEach(s => { container.insertAdjacentHTML('beforeend', `<div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-200"><div class="text-sm text-slate-700"><div class="font-bold">${s.s}</div><div class="text-xs text-slate-500">${s.c}</div></div><div class="text-slate-900 font-bold">₹${s.a.toLocaleString()}</div></div>`); });
+                    else container.innerHTML = `<div class="text-center text-slate-400 py-4">No specific services listed.</div>`;
+                    document.getElementById('convert-total-display').innerText = `Total: ₹${(item.value||0).toLocaleString()}`;
+                } else {
+                    quoteActions.classList.remove('hidden'); orderActions.classList.add('hidden');
+                    if(item.services && item.services.length) { fallback.classList.add('hidden'); container.classList.remove('hidden'); item.services.forEach((s, index) => { const row = `<div class="flex justify-between items-center bg-slate-50 p-3 rounded-lg border border-slate-200"><div class="text-sm text-slate-700"><div>${s.s}</div><div class="text-xs text-slate-500">${s.c}</div></div><input type="number" data-idx="${index}" value="${s.a || ''}" class="convert-amount-input w-28 bg-white border border-slate-300 rounded-lg p-2 text-right text-slate-800 focus:border-emerald-500 font-bold" placeholder="0" oninput="app.calcConvertTotal()"></div>`; container.insertAdjacentHTML('beforeend', row); }); this.calcConvertTotal(); }
+                    else { container.classList.add('hidden'); fallback.classList.remove('hidden'); document.getElementById('input-price-fallback').value = item.value || ''; document.getElementById('convert-total-display').innerText = `Total: ₹${(item.value||0).toLocaleString()}`; }
+                }
+                this.toggleModal('modal-convert', true);
+            }
+            calcConvertTotal() { const inputs = document.querySelectorAll('.convert-amount-input'); let total = 0; inputs.forEach(i => total += Number(i.value) || 0); document.getElementById('convert-total-display').innerText = `Total: ₹${total.toLocaleString()}`; }
+            handleConvertSubmit(e) {
+                e.preventDefault(); const itemIndex = this.state.items.findIndex(i => i.id === this.state.selectedItemId);
+                if (itemIndex > -1) {
+                    const item = this.state.items[itemIndex];
+                    const inputs = document.querySelectorAll('.convert-amount-input');
+                    const fallback = document.getElementById('input-price-fallback');
+                    if(inputs.length > 0) { inputs.forEach(inp => { const idx = inp.dataset.idx; if(item.services[idx]) item.services[idx].a = Number(inp.value); }); item.value = item.services.reduce((sum, s) => sum + s.a, 0); }
+                    else if(fallback && !fallback.closest('.hidden')) { item.value = Number(fallback.value); }
+                    item.type = this.state.convertTargetType; item.status = 'active'; this.toggleModal('modal-convert', false); setTimeout(() => this.setActiveTab('quotation'), 300);
+                }
+            }
+            triggerUploadForConvert() { const fileInput = document.getElementById('po-uploader'); fileInput.dataset.mode = 'convert'; fileInput.value = ''; fileInput.click(); }
+            submitConvertOrder(withPO) { const itemIndex = this.state.items.findIndex(i => i.id === this.state.selectedItemId); if (itemIndex > -1) { const item = this.state.items[itemIndex]; item.type = 'order'; item.status = 'active'; if(withPO) item.poUploaded = true; this.toggleModal('modal-convert', false); setTimeout(() => this.setActiveTab('order'), 300); } }
+            handlePOUpload(input) { const file = input.files[0]; if (!file) return; if(input.dataset.mode === 'convert') { this.submitConvertOrder(true); input.dataset.mode = ''; } else if(this.state.uploadingItemId) { const item = this.state.items.find(i => i.id === this.state.uploadingItemId); if(item) { item.poUploaded = true; this.render(); } this.state.uploadingItemId = null; } }
+
+            // --- New Split/Cancel Logic ---
+            openCancelModal(id) {
+                this.state.selectedItemId = id;
+                const item = this.state.items.find(i => i.id === id); if(!item) return;
+                
+                // If it's not an order, use basic logic
+                if(item.type !== 'order') {
+                    this.showConfirm('Confirm Move', 'Move this record to Dead/Lost?', 'Yes, Move', 'bg-red-600', () => {
+                        item.status = 'dead'; this.render();
+                    });
+                    return;
+                }
+
+                // If Order, show service split modal
+                document.getElementById('split-id-display').innerText = id;
+                const list = document.getElementById('split-services-list');
+                list.innerHTML = '';
+                if(item.services && item.services.length) {
+                    item.services.forEach((s, idx) => {
+                        list.insertAdjacentHTML('beforeend', `<label class="flex items-center justify-between p-3 border border-slate-200 rounded-lg bg-white cursor-pointer hover:bg-slate-50"><div class="flex items-center gap-3"><input type="checkbox" class="custom-checkbox split-check" value="${idx}"><div><div class="font-bold text-slate-700">${s.s}</div><div class="text-xs text-slate-500">${s.c}</div></div></div><div class="font-mono text-slate-600">₹${s.a}</div></label>`);
+                    });
+                } else {
+                    list.innerHTML = '<div class="text-center text-slate-400 py-4">No services itemized. Cancelling will move entire order.</div>';
+                }
+                this.toggleModal('modal-cancel-split', true);
+            }
+
+            processCancellation() {
+                const itemIndex = this.state.items.findIndex(i => i.id === this.state.selectedItemId);
+                if(itemIndex === -1) return;
+                const item = this.state.items[itemIndex];
+                
+                const checkboxes = document.querySelectorAll('.split-check:checked');
+                
+                // Case 1: Full Cancel (All or No Services listed)
+                if (checkboxes.length === 0 || checkboxes.length === item.services.length) {
+                    item.status = 'dead';
+                    item.isCancelled = true;
+                    // If there was an existing dead card, merge into it
+                    const existingDead = this.state.items.find(i => i.parentId === item.id && i.status === 'dead');
+                    if(existingDead) {
+                        item.services.push(...existingDead.services);
+                        item.value += existingDead.value;
+                        // Remove the temp dead card
+                        const deadIdx = this.state.items.indexOf(existingDead);
+                        this.state.items.splice(deadIdx, 1);
+                    }
+                } else {
+                    // Case 2: Partial Cancel - REMOVE FROM ACTIVE, MERGE INTO DEAD
+                    const indicesToRemove = Array.from(checkboxes).map(cb => Number(cb.value)).sort((a,b) => b-a);
+                    const cancelledServices = [];
+                    let cancelledValue = 0;
+                    
+                    indicesToRemove.forEach(idx => {
+                        cancelledServices.push(item.services[idx]);
+                        cancelledValue += item.services[idx].a;
+                        item.services.splice(idx, 1);
+                    });
+                    
+                    // Find or Create Dead Record
+                    let deadItem = this.state.items.find(i => i.parentId === item.id && i.status === 'dead');
+                    if(!deadItem) {
+                         deadItem = {
+                            ...JSON.parse(JSON.stringify(item)),
+                            id: item.id + '-X', // Suffix for split card
+                            services: [],
+                            value: 0,
+                            status: 'dead',
+                            isCancelled: true,
+                            paidAmount: 0, // Money stays on parent
+                            parentId: item.id,
+                            paymentStatus: 'unpaid'
+                        };
+                        this.state.items.push(deadItem);
+                    }
+                    
+                    deadItem.services.push(...cancelledServices);
+                    deadItem.value += cancelledValue;
+                    
+                    // Update Active Record Value
+                    item.value -= cancelledValue;
+                }
+                
+                // Recalc Status for Active Item
+                const fin = this.getFinancials(item);
+                // If balance is negative (Refund Due) or zero, mark 'paid' (Settled/Refundable state)
+                if(fin.balance <= 0) item.paymentStatus = 'paid'; 
+                else item.paymentStatus = 'partial';
+                
+                this.toggleModal('modal-cancel-split', false);
+                this.render();
+            }
+
+            restoreOrder(id) {
+                const itemIndex = this.state.items.findIndex(i => i.id === id);
+                if(itemIndex === -1) return;
+                const item = this.state.items[itemIndex];
+                
+                // Check if it's a split child (has parentId)
+                if(item.parentId) {
+                    const parent = this.state.items.find(i => i.id === item.parentId);
+                    if(parent) {
+                        this.showConfirm('Restore Services', `Merge cancelled services back into Order ${parent.id}?`, 'Merge & Restore', 'bg-blue-600', () => {
+                            // Merge services
+                            if(item.services && item.services.length) {
+                                parent.services.push(...item.services);
+                            }
+                            // Restore value
+                            parent.value += (item.value || 0);
+                            
+                            // FORCE PARENT TO ACTIVE
+                            parent.status = 'active';
+                            parent.isCancelled = false;
+                            
+                            // Recalculate parent status
+                            const fin = this.getFinancials(parent);
+                            // If balance is positive, it's partial or unpaid. If 0, paid.
+                            if(fin.balance <= 0 && fin.paidAmount > 0) parent.paymentStatus = 'paid';
+                            else if(fin.paidAmount > 0) parent.paymentStatus = 'partial';
+                            else parent.paymentStatus = 'unpaid';
+                            
+                            // Remove the dead split item
+                            this.state.items.splice(itemIndex, 1);
+                            
+                            this.render();
+                        });
+                        return;
+                    }
+                }
+
+                // Default restore (full order or parent not found)
+                this.showConfirm('Restore Order', 'Move this order back to Active?', 'Restore', 'bg-blue-600', () => {
+                    item.status = 'active';
+                    item.isCancelled = false;
+                    // Recalculate status just in case
+                    const fin = this.getFinancials(item);
+                    if(fin.balance <= 0 && fin.paidAmount > 0) item.paymentStatus = 'paid';
+                    else if(fin.paidAmount > 0) item.paymentStatus = 'partial';
+                    else item.paymentStatus = 'unpaid';
+                    
+                    this.render();
                 });
             }
 
-            populateStates() {
-                const countrySelect = document.getElementById('input-country');
-                const stateSelect = document.getElementById('input-state');
-                const selectedCountry = countrySelect.value;
-                stateSelect.innerHTML = '<option value="" disabled selected>Select State</option>';
-                if(selectedCountry && countryData[selectedCountry]) {
-                    countryData[selectedCountry].forEach(state => {
-                        const option = document.createElement('option');
-                        option.value = state;
-                        option.textContent = state;
-                        stateSelect.appendChild(option);
-                    });
-                }
-            }
-
-            populateEditStates() {
-                const countrySelect = document.getElementById('edit-country');
-                const stateSelect = document.getElementById('edit-state');
-                const selectedCountry = countrySelect.value;
-                stateSelect.innerHTML = '<option value="" disabled selected>Select State</option>';
-                if(selectedCountry && countryData[selectedCountry]) {
-                    countryData[selectedCountry].forEach(state => {
-                        const option = document.createElement('option');
-                        option.value = state;
-                        option.textContent = state;
-                        stateSelect.appendChild(option);
-                    });
-                }
-            }
-
-            handleSearch(query) {
-                this.state.searchQuery = query.toLowerCase().trim();
-                this.renderList(); 
-            }
-
-            setActiveTab(tab) {
-                if (this.state.activeTab === tab) return;
-                this.state.activeTab = tab;
-                this.state.subTab = 'active'; 
-                this.render();
-            }
-
-            setSubTab(tab) {
-                if (this.state.subTab === tab) return;
-                this.state.subTab = tab;
-                this.render();
-            }
-
-            toggleModal(modalId, show) {
-                const el = document.getElementById(modalId);
-                const content = el.querySelector('div');
-                
-                if (show) {
-                    el.classList.remove('hidden');
-                    setTimeout(() => {
-                        el.classList.remove('opacity-0');
-                        content.classList.remove('scale-95', 'opacity-0');
-                        content.classList.add('scale-100', 'opacity-100');
-                        const input = el.querySelector('input');
-                        if(input) input.focus();
-                        if(modalId === 'modal-add') {
-                             const dateInput = document.getElementById('input-date');
-                             if(dateInput && !dateInput.value) dateInput.valueAsDate = new Date();
-                        }
-                    }, 10);
-                } else {
-                    el.classList.add('opacity-0');
-                    content.classList.remove('scale-100', 'opacity-100');
-                    content.classList.add('scale-95', 'opacity-0');
-                    setTimeout(() => {
-                        el.classList.add('hidden');
-                    }, 300);
-                }
-            }
-
-            generateId() {
-                const lastId = this.state.items.length > 0 ? this.state.items[this.state.items.length - 1].id : 'PP000';
-                const num = parseInt(lastId.replace('PP', '')) + 1;
-                return `PP${String(num).padStart(3, '0')}`;
-            }
-
-            handleAddEnquiry(e) {
-                e.preventDefault();
-                const name = document.getElementById('input-name').value;
-                const company = document.getElementById('input-company').value;
-                const mobile = document.getElementById('input-mobile').value;
-                const email = document.getElementById('input-email').value;
-                const address = document.getElementById('input-address').value;
-                const companyAddress = document.getElementById('input-company-address').value;
-                const country = document.getElementById('input-country').value;
-                const state = document.getElementById('input-state').value;
-                const website = document.getElementById('input-website').value;
-                const desc = document.getElementById('input-desc').value;
-                const dateVal = document.getElementById('input-date').value;
-
-                const newItem = {
-                    id: this.generateId(),
-                    type: 'enquiry',
-                    status: 'active',
-                    paymentStatus: 'unpaid',
-                    isCancelled: false, 
-                    poUploaded: false, 
-                    name, company, mobile, email, address, companyAddress, country, state, website, desc,
-                    value: 0,
-                    date: dateVal || new Date().toLocaleDateString()
-                };
-
-                this.state.items.push(newItem);
-                e.target.reset();
-                document.getElementById('input-date').valueAsDate = new Date();
-                this.toggleModal('modal-add', false);
-                this.render();
-            }
-
-            openConvertModal(id) {
-                this.state.selectedItemId = id;
-                this.state.modalMode = 'convert';
-                document.getElementById('convert-id-display').textContent = id;
-                document.getElementById('modal-convert-title').textContent = "Generate Quotation";
-                document.getElementById('modal-convert-btn-text').textContent = "Confirm Quote";
-                document.getElementById('input-price').value = '';
-                this.toggleModal('modal-convert', true);
-            }
-
-            openEditModal(id) {
-                this.state.selectedItemId = id;
-                const item = this.state.items.find(i => i.id === id);
-                if (!item) return;
-
-                document.getElementById('edit-id-display').textContent = id;
-                document.getElementById('edit-date').value = item.date ? new Date(item.date).toISOString().split('T')[0] : '';
-                document.getElementById('edit-name').value = item.name;
-                document.getElementById('edit-company').value = item.company;
-                document.getElementById('edit-website').value = item.website;
-                document.getElementById('edit-mobile').value = item.mobile;
-                document.getElementById('edit-email').value = item.email;
-                document.getElementById('edit-address').value = item.address;
-                document.getElementById('edit-company-address').value = item.companyAddress;
-                document.getElementById('edit-country').value = item.country;
-                
-                this.populateEditStates();
-                document.getElementById('edit-state').value = item.state;
-                document.getElementById('edit-desc').value = item.desc;
-
-                // Handle Price Field
-                const priceWrapper = document.getElementById('edit-price-wrapper');
-                if (item.type === 'quotation' || item.type === 'order') {
-                    priceWrapper.classList.remove('hidden');
-                    document.getElementById('edit-price').value = item.value;
-                } else {
-                    priceWrapper.classList.add('hidden');
-                }
-
-                this.toggleModal('modal-edit', true);
-            }
-
-            handleEditSubmit(e) {
-                e.preventDefault();
-                const itemIndex = this.state.items.findIndex(i => i.id === this.state.selectedItemId);
-                if (itemIndex > -1) {
-                    const item = this.state.items[itemIndex];
-                    
-                    item.date = document.getElementById('edit-date').value;
-                    item.name = document.getElementById('edit-name').value;
-                    item.company = document.getElementById('edit-company').value;
-                    item.website = document.getElementById('edit-website').value;
-                    item.mobile = document.getElementById('edit-mobile').value;
-                    item.email = document.getElementById('edit-email').value;
-                    item.address = document.getElementById('edit-address').value;
-                    item.companyAddress = document.getElementById('edit-company-address').value;
-                    item.country = document.getElementById('edit-country').value;
-                    item.state = document.getElementById('edit-state').value;
-                    item.desc = document.getElementById('edit-desc').value;
-
-                    if (item.type === 'quotation' || item.type === 'order') {
-                        item.value = Number(document.getElementById('edit-price').value);
-                    }
-
-                    this.toggleModal('modal-edit', false);
-                    this.render();
-                }
-            }
-
-            handleConvertSubmit(e) {
-                e.preventDefault();
-                const price = Number(document.getElementById('input-price').value);
-                const itemIndex = this.state.items.findIndex(i => i.id === this.state.selectedItemId);
-                
-                if (itemIndex > -1) {
-                    this.state.items[itemIndex].type = 'quotation';
-                    this.state.items[itemIndex].value = price;
-                    this.toggleModal('modal-convert', false);
-                    setTimeout(() => this.setActiveTab('quotation'), 300);
-                }
-            }
-
-            markAsOrder(id) {
-                const item = this.state.items.find(i => i.id === id);
-                if (item) {
-                    item.type = 'order'; 
-                    item.status = 'active'; 
-                    if (!item.paymentStatus) item.paymentStatus = 'unpaid';
-                    this.setActiveTab('order'); 
-                }
+            refundOrder(id) {
+                // Open modal in Refund Mode
+                this.openPaymentModal(id, 'refund');
             }
             
-            togglePaymentStatus(id) {
-                const item = this.state.items.find(i => i.id === id);
-                if (item && !item.isCancelled) { 
-                    item.paymentStatus = (item.paymentStatus === 'paid') ? 'unpaid' : 'paid';
-                    this.render(); 
-                }
-            }
+            triggerUpload(id) { this.state.uploadingItemId = id; document.getElementById('po-uploader').click(); }
             
-            toggleRefundStatus(id) {
-                const item = this.state.items.find(i => i.id === id);
-                if (item) {
-                    if(item.paymentStatus === 'refunded') {
-                        item.paymentStatus = 'paid';
-                    } else {
-                        item.paymentStatus = 'refunded';
-                    }
-                    this.render();
-                }
+            openTaxInvoice(id) { 
+                this.showConfirm(
+                    'Feature Locked',
+                    'Tax Invoice generation is coming in the next update.',
+                    'Okay',
+                    'bg-slate-800 hover:bg-slate-900',
+                    null
+                );
             }
+
+            openViewDetails(id) {
+                const item = this.state.items.find(i => i.id === id); if (!item) return;
+                document.getElementById('view-type').innerText = item.type.toUpperCase();
+                document.getElementById('view-type').className = `text-xs font-bold uppercase tracking-wider px-2 py-1 bg-gray-200 text-gray-600 rounded`;
+                document.getElementById('view-id').innerText = item.id;
+                document.getElementById('view-company').innerText = item.company || item.name;
+                document.getElementById('view-date').innerText = `Created on: ${item.date}`;
+                document.getElementById('view-name').innerText = item.name;
+                document.getElementById('view-mobile').innerText = item.mobile;
+                document.getElementById('view-email').innerText = item.email;
+                document.getElementById('view-website').innerText = item.website || 'N/A';
+                document.getElementById('view-company-address').innerText = item.companyAddress || 'N/A';
+                document.getElementById('view-location').innerText = `${item.state || ''}, ${item.country || ''}`;
+                document.getElementById('view-desc').innerText = item.desc || 'No description provided.';
+                
+                const servContainer = document.getElementById('view-services-list'); servContainer.innerHTML = '';
+                if (item.services && item.services.length > 0) {
+                    item.services.forEach(s => { servContainer.innerHTML += `<div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-0"><div><p class="font-medium text-gray-800">${s.s}</p><p class="text-xs text-gray-500">${s.c}</p></div><span class="font-bold text-gray-700">${s.a > 0 ? '₹' + s.a.toLocaleString() : '-'}</span></div>`; });
+                } else { servContainer.innerHTML = '<p class="text-sm text-gray-500 italic">No services listed.</p>'; }
+                
+                if (item.value > 0) { document.getElementById('view-total-container').classList.remove('hidden'); document.getElementById('view-total').innerText = '₹' + item.value.toLocaleString(); } else { document.getElementById('view-total-container').classList.add('hidden'); }
+                if (item.type === 'market-research') { document.getElementById('view-pitch-section').classList.remove('hidden'); document.getElementById('view-pitch').innerText = item.pitch || 'N/A'; } else { document.getElementById('view-pitch-section').classList.add('hidden'); }
+                
+                const actionsContainer = document.getElementById('view-actions');
+                let btns = `<button onclick="app.openEdit('${item.id}')" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700 font-medium text-sm">Edit Details</button>`;
+                
+                // Add Download PI for Orders in Popup
+                if (item.type === 'order') {
+                    btns += `<button onclick="app.dlPDF('${item.id}', 'PI')" class="ml-2 px-4 py-2 border border-blue-500 text-blue-600 rounded hover:bg-blue-50 font-medium text-sm">Download PI</button>`;
+                }
+
+                actionsContainer.innerHTML = btns;
+                this.toggleModal('modal-view-details', true); lucide.createIcons();
+            }
+
+            dlPDF(id, type) {
+                const item = this.state.items.find(i => i.id === id); if(!item) return;
+                const doc = new window.jspdf.jsPDF();
+                const fin = this.getFinancials(item);
+
+                doc.setFillColor(248, 250, 252); doc.rect(0,0,210,40,'F');
+                doc.setFontSize(24); doc.setTextColor(37,99,235); doc.text("Pixel CRM", 20, 25);
+                doc.setFontSize(10); doc.setTextColor(100); doc.text("123 Tech Park, India", 20, 32);
+                doc.setFontSize(20); doc.setTextColor(0); 
+                const displayTitle = type === 'PI' ? 'PROFORMA INVOICE' : type === 'QUOTE' ? 'QUOTATION' : 'PURCHASE ORDER';
+                doc.text(displayTitle, 140, 60, { align: 'right' });
+                doc.setFontSize(10); doc.setTextColor(100);
+                doc.text(`#${item.id}`, 140, 70, { align: 'right' });
+                doc.text(item.date, 140, 75, { align: 'right' });
+
+                if(item.isCancelled) { doc.setTextColor(220, 38, 38); doc.text("CANCELLED", 105, 50, null, null, 'center'); }
+
+                doc.setTextColor(0);
+                doc.setFontSize(11);
+                doc.text("Bill To:", 20, 60); doc.setFontSize(12); doc.setFont("helvetica", "bold");
+                doc.text(item.company || item.name, 20, 66);
+                doc.setFont("helvetica", "normal"); doc.setFontSize(10); doc.setTextColor(80);
+                doc.text(`Attn: ${item.name}`, 20, 72);
+                doc.text(item.companyAddress || '', 20, 77);
+                doc.text(item.email, 20, 82);
+
+                const rows = item.services?.map(s => {
+                    let desc = s.s;
+                    if(s.refunded) { desc += " (REFUNDED)"; }
+                    return [desc, s.c, `Rs. ${s.a.toLocaleString()}`];
+                }) || [];
+                
+                const footer = [ ['Total Value', `Rs. ${fin.totalValue.toLocaleString()}`] ];
+                
+                footer.push(['Net Payable', `Rs. ${fin.netPayable.toLocaleString()}`]);
+                
+                if(item.paidAmount) {
+                     footer.push(['Amount Paid', `Rs. ${fin.paidAmount.toLocaleString()}`]);
+                     if(fin.balance < 0) footer.push(['Refund Due', `Rs. ${Math.abs(fin.balance).toLocaleString()}`]);
+                     else footer.push(['Balance Due', `Rs. ${fin.balance.toLocaleString()}`]);
+                }
+
+                doc.autoTable({ 
+                    startY: 95, 
+                    head: [['Service', 'Category', 'Price']], 
+                    body: rows, 
+                    theme: 'striped', 
+                    headStyles: { fillColor: [59, 130, 246], textColor: 255 },
+                    foot: footer,
+                    footStyles: { fillColor: [248, 250, 252], textColor: 0, fontStyle: 'bold' }
+                });
+                
+                doc.save(`${type}-${item.id}.pdf`);
+            }
+
+            render() { this.renderNav(); this.renderHeader(); this.renderStats(); this.renderList(); lucide.createIcons(); }
             
-            cancelItem(id) {
-                const item = this.state.items.find(i => i.id === id);
-                if (item) {
-                    item.isCancelled = true;
-                    // Move Enquiries and Quotes to Dead
-                    if (item.type !== 'order') {
-                        item.status = 'dead';
-                    } else {
-                        // Orders move to dead section per requirements
-                        item.status = 'dead';
-                    }
-                    this.render();
-                }
-            }
-
-            markAsRefunded(id) {
-                const item = this.state.items.find(i => i.id === id);
-                if (item) {
-                    item.paymentStatus = 'refunded';
-                    item.isCancelled = false; 
-                    this.render();
-                }
-            }
-
-            markStatus(id, status) {
-                const item = this.state.items.find(i => i.id === id);
-                if (item) {
-                    item.status = status;
-                    if (status === 'active') {
-                        item.isCancelled = false; 
-                    }
-                    this.render();
-                }
-            }
-
-            triggerUpload(id) {
-                this.state.uploadingItemId = id;
-                const fileInput = document.getElementById('po-uploader');
-                fileInput.value = ''; 
-                fileInput.click();
-            }
-
-            handleFileSelection(input) {
-                if (input.files && input.files[0] && this.state.uploadingItemId) {
-                    const item = this.state.items.find(i => i.id === this.state.uploadingItemId);
-                    if (item) {
-                        item.poUploaded = true;
-                        this.render();
-                    }
-                }
-                this.state.uploadingItemId = null;
-            }
-
-            downloadPO(id) {
-                const item = this.state.items.find(i => i.id === id);
-                if (!item) return;
-                this.generatePDF(item, "PURCHASE ORDER", `PO-${item.id}.pdf`);
-            }
-
-            downloadQuote(id) {
-                const item = this.state.items.find(i => i.id === id);
-                if (!item) return;
-                this.generatePDF(item, "QUOTATION", `Quote-${item.id}.pdf`);
-            }
-
-            generatePDF(item, title, filename) {
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                
-                doc.setFillColor(248, 250, 252);
-                doc.rect(0, 0, 210, 40, 'F');
-                doc.setFontSize(24);
-                doc.setTextColor(37, 99, 235);
-                doc.text("Pixel CRM", 20, 25);
-                doc.setFontSize(9);
-                doc.setTextColor(100, 116, 139);
-                doc.text("123 Innovation Drive, Tech Valley, CA 94043", 20, 32);
-                
-                doc.setFontSize(20);
-                doc.setTextColor(15, 23, 42);
-                doc.text(title, 130, 25);
-                doc.setFontSize(10);
-                doc.setTextColor(71, 85, 105);
-                doc.text(`${title === 'QUOTATION' ? 'Quote' : 'PO'} Number:`, 130, 35);
-                doc.text(`Date:`, 130, 40);
-                
-                if (item.isCancelled) {
-                    doc.setTextColor(220, 38, 38);
-                    doc.text("(CANCELLED)", 130, 50);
-                } else if (item.paymentStatus === 'refunded') {
-                    doc.setTextColor(234, 179, 8);
-                    doc.text("(REFUNDED)", 130, 50);
-                }
-
-                doc.setTextColor(15, 23, 42);
-                doc.setFont("helvetica", "bold");
-                doc.text(item.id, 160, 35);
-                doc.text(item.date || new Date().toLocaleDateString(), 160, 40);
-                doc.setFont("helvetica", "normal");
-                doc.setDrawColor(226, 232, 240);
-                doc.line(20, 55, 190, 55);
-                
-                doc.setFontSize(10);
-                doc.setTextColor(100, 116, 139);
-                doc.text("BILL TO", 20, 65);
-                doc.setFontSize(12);
-                doc.setTextColor(15, 23, 42);
-                doc.setFont("helvetica", "bold");
-                doc.text(item.company || item.name, 20, 72); 
-                doc.setFontSize(10);
-                doc.setFont("helvetica", "normal");
-                doc.setTextColor(71, 85, 105);
-                
-                let y = 78;
-                if(item.company) { doc.text(`Attn: ${item.name}`, 20, y); y+=5; }
-                doc.text(item.companyAddress || item.address, 20, y); y+=5;
-                doc.text(`${item.state}, ${item.country}`, 20, y); y+=5;
-                doc.text(item.email, 20, y); y+=5;
-                doc.text(item.mobile, 20, y);
-
-                doc.setFillColor(241, 245, 249);
-                doc.rect(20, 105, 170, 10, 'F');
-                doc.setFontSize(9);
-                doc.setTextColor(71, 85, 105);
-                doc.setFont("helvetica", "bold");
-                doc.text("DESCRIPTION", 25, 111);
-                doc.text("AMOUNT", 165, 111);
-                
-                doc.setFont("helvetica", "normal");
-                doc.setFontSize(10);
-                doc.setTextColor(30, 41, 59);
-                const splitDesc = doc.splitTextToSize(item.desc, 130);
-                doc.text(splitDesc, 25, 125);
-                doc.setFont("helvetica", "bold");
-                doc.text(`Rs. ${item.value.toLocaleString()}`, 165, 125);
-                
-                let yPos = 125 + (splitDesc.length * 5) + 5;
-                doc.setDrawColor(226, 232, 240);
-                doc.line(20, yPos, 190, yPos);
-                yPos += 10;
-                doc.setFontSize(12);
-                doc.setTextColor(71, 85, 105);
-                doc.text("Total", 130, yPos);
-                doc.setFontSize(16);
-                doc.setTextColor(37, 99, 235);
-                doc.text(`Rs. ${item.value.toLocaleString()}`, 160, yPos);
-                doc.setFontSize(8);
-                doc.setTextColor(148, 163, 184);
-                doc.text("Thank you for choosing Pixel CRM. If you have any questions, please contact support.", 105, 280, null, null, "center");
-                doc.save(filename);
-            }
-
-            render() {
-                this.renderNav();
-                this.renderHeader();
-                this.renderStats();
-                this.renderList();
-                lucide.createIcons();
-            }
-
             renderNav() {
                 const container = document.getElementById('main-nav');
                 container.innerHTML = this.navItems.map(item => {
@@ -992,362 +1085,275 @@
                     const baseClasses = "flex items-center gap-2.5 py-4 border-b-2 transition-all duration-300 group relative";
                     const activeClasses = `${item.borderClass} ${item.colorClass}`;
                     const inactiveClasses = "border-transparent text-slate-500 hover:text-slate-200 hover:border-slate-800";
-                    return `
-                        <button onclick="app.setActiveTab('${item.id}')" class="${baseClasses} ${isActive ? activeClasses : inactiveClasses}">
-                            <div class="${isActive ? '' : 'group-hover:-translate-y-0.5 transition-transform duration-300'}">
-                                <i data-lucide="${item.icon}" class="w-5 h-5 ${isActive ? 'drop-shadow-md' : 'opacity-70'}"></i>
-                            </div>
-                            <span class="font-medium tracking-wide ${isActive ? 'font-bold' : ''}">${item.label}</span>
-                            ${isActive ? `<div class="absolute inset-0 bg-gradient-to-t from-white/5 to-transparent pointer-events-none"></div>` : ''}
-                        </button>
-                    `;
+                    return `<button onclick="app.setActiveTab('${item.id}')" class="${baseClasses} ${isActive ? activeClasses : inactiveClasses}"><i data-lucide="${item.icon}" class="w-5 h-5 ${isActive ? 'drop-shadow-md' : 'opacity-70'}"></i><span class="font-medium tracking-wide ${isActive ? 'font-bold' : ''}">${item.label}</span>${isActive ? `<div class="absolute inset-0 bg-gradient-to-t from-white/5 to-transparent pointer-events-none"></div>` : ''}</button>`;
                 }).join('');
             }
 
             renderHeader() {
-                const titleEl = document.getElementById('page-title');
-                const activeNavItem = this.navItems.find(i => i.id === this.state.activeTab);
-                titleEl.innerHTML = `<span class="${activeNavItem.colorClass} drop-shadow-sm">${activeNavItem.label}</span>`;
-
-                const subtabContainer = document.getElementById('subtab-container');
-                if (this.state.activeTab === 'revenue') {
-                    subtabContainer.classList.add('hidden');
-                } else {
-                    subtabContainer.classList.remove('hidden');
-                    const btnActive = document.getElementById('btn-subtab-active');
-                    const btnDead = document.getElementById('btn-subtab-dead');
-
-                    if (this.state.subTab === 'active') {
-                        btnActive.className = "flex-1 sm:flex-none px-4 py-1.5 rounded-md text-white bg-slate-700 shadow-lg shadow-black/20 font-medium transition-all duration-300 text-center";
-                        btnDead.className = "flex-1 sm:flex-none px-4 py-1.5 rounded-md text-slate-500 hover:text-slate-300 hover:bg-slate-800/50 transition-all duration-300 text-center";
-                    } else {
-                        btnActive.className = "flex-1 sm:flex-none px-4 py-1.5 rounded-md text-slate-500 hover:text-slate-300 hover:bg-slate-800/50 transition-all duration-300 text-center";
-                        btnDead.className = "flex-1 sm:flex-none px-4 py-1.5 rounded-md text-red-400 bg-red-500/10 shadow-lg shadow-red-900/10 font-medium transition-all duration-300 text-center";
-                    }
+                document.getElementById('page-title').innerText = this.state.activeTab.replace('-',' ');
+                const isRev = this.state.activeTab === 'revenue' || this.state.activeTab === 'market-research';
+                document.getElementById('subtab-container').style.display = isRev ? 'none' : 'flex';
+                const activeBtn = document.getElementById('btn-subtab-active'); const deadBtn = document.getElementById('btn-subtab-dead');
+                if(!isRev) {
+                    if(this.state.subTab === 'active') { activeBtn.className = "px-5 py-1.5 bg-white shadow text-blue-600 rounded-md font-bold"; deadBtn.className = "px-5 py-1.5 text-slate-500 hover:text-slate-800"; }
+                    else { deadBtn.className = "px-5 py-1.5 bg-white shadow text-red-600 rounded-md font-bold"; activeBtn.className = "px-5 py-1.5 text-slate-500 hover:text-slate-800"; }
                 }
-
-                const actionsEl = document.getElementById('header-actions');
-                if (this.state.activeTab === 'enquiry' && this.state.subTab === 'active') {
-                    actionsEl.innerHTML = `
-                        <button onclick="app.toggleModal('modal-add', true)" class="w-full md:w-auto px-5 py-2.5 rounded-xl font-semibold transition-all duration-300 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 hover:-translate-y-0.5 active:scale-95 group">
-                            <i data-lucide="plus" class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300"></i>
-                            <span class="inline">Add Enquiry</span>
-                        </button>
-                    `;
+                const acts = document.getElementById('header-actions');
+                if(this.state.activeTab === 'enquiry' && this.state.subTab === 'active') acts.innerHTML = `<button onclick="app.openAddEnquiry()" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl shadow-lg shadow-blue-200 flex gap-2 items-center"><i data-lucide="plus" class="w-5 h-5"></i> New Enquiry</button>`;
+                else if(this.state.activeTab === 'market-research') acts.innerHTML = `<button onclick="app.toggleModal('modal-add-research', true)" class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-xl shadow-lg shadow-orange-200 flex gap-2 items-center"><i data-lucide="globe" class="w-5 h-5"></i> Add Company</button>`;
+                else acts.innerHTML = '';
+                
+                const listHeader = document.getElementById('list-header');
+                const isSingleLineView = (this.state.activeTab === 'enquiry' || this.state.activeTab === 'quotation');
+                if(isSingleLineView) {
+                     listHeader.classList.remove('hidden', 'md:grid'); listHeader.classList.add('md:grid');
                 } else {
-                    actionsEl.innerHTML = '';
+                     listHeader.classList.add('hidden'); listHeader.classList.remove('md:grid');
                 }
             }
 
             createStatCard(title, value, icon, colorClass, delay = 0) {
-                let bgClass = "bg-blue-500/10";
-                let textClass = "text-blue-400";
+                let bgClass = "bg-blue-500/10"; let textClass = "text-blue-400";
                 if (colorClass === 'emerald') { bgClass = "bg-emerald-500/10"; textClass = "text-emerald-400"; }
                 if (colorClass === 'purple') { bgClass = "bg-purple-500/10"; textClass = "text-purple-400"; }
                 if (colorClass === 'amber') { bgClass = "bg-amber-500/10"; textClass = "text-amber-400"; }
                 if (colorClass === 'red') { bgClass = "bg-red-500/10"; textClass = "text-red-400"; }
-                
-                return `
-                    <div class="card-glass rounded-2xl p-6 shadow-xl relative overflow-hidden group hover:bg-slate-800/50 transition-colors duration-300 animate-slide-up" style="animation-delay: ${delay}ms">
-                        <div class="absolute -right-6 -top-6 w-32 h-32 ${bgClass} rounded-full blur-3xl transition-all duration-500 group-hover:opacity-70"></div>
-                        <div class="relative z-10">
-                            <div class="flex items-center gap-2 mb-2">
-                                <div class="p-1.5 rounded-lg ${bgClass} ${textClass}">
-                                    <i data-lucide="${icon}" class="w-4 h-4"></i>
-                                </div>
-                                <p class="text-slate-400 text-xs font-bold uppercase tracking-wider">${title}</p>
-                            </div>
-                            <h3 class="text-3xl md:text-4xl font-bold text-white tracking-tight">${value}</h3>
-                        </div>
-                    </div>
-                `;
+                return `<div class="square-card border-l-4 border-${colorClass}-500 p-6 relative overflow-hidden group"><div class="absolute right-0 top-0 w-24 h-24 ${bgClass} rounded-full -mr-10 -mt-10 opacity-50"></div><div class="relative z-10 ${textClass} mb-2 flex items-center gap-2"><i data-lucide="${icon}" class="w-5 h-5"></i> <span class="font-bold text-xs uppercase text-slate-400">${title}</span></div><div class="relative z-10 text-3xl font-bold text-slate-800">${value}</div></div>`;
             }
 
             renderStats() {
-                const container = document.getElementById('stats-container');
-                let cardsHtml = '';
-                const items = this.state.items.filter(i => i.type === this.state.activeTab); 
+                 const c = document.getElementById('stats-container');
+                 if(this.state.activeTab === 'market-research') { c.innerHTML=''; return; }
+                 
+                 const items = this.state.items;
+                 
+                 // --- Revenue Calculation Update ---
+                 if(this.state.activeTab === 'revenue') {
+                     // 1. Transactions: Count unique Paid/Partial orders (active or dead)
+                     const paidOrders = items.filter(i => i.type === 'order' && (i.paymentStatus === 'paid' || i.paymentStatus === 'refunded' || i.paymentStatus === 'partial') && i.paidAmount > 0);
+                     
+                     // 2. Net Revenue: Sum of ALL 'paidAmount' currently held (cash in hand)
+                     // Note: paidAmount is reduced when refund is processed, so this is correct.
+                     const netRevenue = items.reduce((sum, i) => sum + (i.paidAmount || 0), 0);
+                     
+                     // 3. Refunded Amount: Sum of 'totalRefunded' (historical refunds)
+                     const totalRefunded = items.reduce((sum, i) => sum + (i.totalRefunded || 0), 0);
+                     
+                     // 4. Refund Events: Count of items with totalRefunded > 0
+                     const refundCount = items.filter(i => (i.totalRefunded || 0) > 0).length;
 
-                if (this.state.activeTab === 'enquiry') {
-                    const total = items.length;
-                    const active = items.filter(i => i.status === 'active').length;
-                    const dead = items.filter(i => i.status === 'dead').length;
-                    cardsHtml += this.createStatCard('Total Enquiries', total, 'layers', 'blue', 0);
-                    cardsHtml += this.createStatCard('Active Enquiries', active, 'activity', 'blue', 100);
-                    cardsHtml += this.createStatCard('Dead Enquiries', dead, 'x-circle', 'red', 200);
-                } 
-                else if (this.state.activeTab === 'quotation') {
-                    const total = items.length;
-                    const active = items.filter(i => i.status === 'active').length;
-                    const dead = items.filter(i => i.status === 'dead').length;
-                    const activeValue = items.filter(i => i.status === 'active').reduce((acc, curr) => acc + (curr.value || 0), 0);
-                    const cancelledValue = items.filter(i => i.status === 'dead').reduce((acc, curr) => acc + (curr.value || 0), 0);
-                    cardsHtml += this.createStatCard('Total Quotations', total, 'layers', 'purple', 0);
-                    cardsHtml += this.createStatCard('Active', active, 'activity', 'purple', 100);
-                    cardsHtml += this.createStatCard('Cancelled Value', `₹${cancelledValue.toLocaleString()} <span class="text-lg text-red-300/50 font-medium ml-1">(${dead})</span>`, 'x-circle', 'red', 200);
-                    cardsHtml += this.createStatCard('Active Value', '₹' + activeValue.toLocaleString(), 'indian-rupee', 'emerald', 300);
-                }
-                else if (this.state.activeTab === 'revenue') {
-                    const validItems = this.state.items.filter(i => i.type === 'order' && (i.paymentStatus === 'paid' || i.paymentStatus === 'refunded'));
-                    const transactions = validItems.length;
-                    const refundedItems = validItems.filter(i => i.paymentStatus === 'refunded');
-                    const refundedCount = refundedItems.length;
-                    const refundedValue = refundedItems.reduce((acc, curr) => acc + (curr.value || 0), 0);
-                    const netRevenue = validItems.reduce((acc, curr) => {
-                        if (curr.paymentStatus === 'refunded') return acc;
-                        return acc + (curr.value || 0);
-                    }, 0);
-                    cardsHtml += this.createStatCard('Transactions', transactions, 'layers', 'amber', 0);
-                    cardsHtml += this.createStatCard('Net Revenue', '₹' + netRevenue.toLocaleString(), 'indian-rupee', 'emerald', 100);
-                    cardsHtml += this.createStatCard('Refunded Orders', refundedCount, 'rotate-ccw', 'red', 200);
-                    cardsHtml += this.createStatCard('Refunded Amount', '₹' + refundedValue.toLocaleString(), 'minus-circle', 'red', 300);
-                }
-                else {
-                    const total = items.length;
-                    const active = items.filter(i => i.status === 'active').length;
-                    const cancelled = items.filter(i => i.status === 'dead').length; // Corrected cancelled/dead count logic for orders
-                    const activeValue = items.filter(i => i.status === 'active').reduce((acc, curr) => acc + (curr.value || 0), 0);
-                    cardsHtml += this.createStatCard('Total Orders', total, 'layers', 'emerald', 0);
-                    cardsHtml += this.createStatCard('Active', active, 'activity', 'emerald', 100);
-                    cardsHtml += this.createStatCard('Cancelled', cancelled, 'ban', 'red', 200);
-                    cardsHtml += this.createStatCard('Total Order Value', '₹' + activeValue.toLocaleString(), 'indian-rupee', 'emerald', 300);
-                }
-                container.innerHTML = cardsHtml;
+                     let html = '';
+                     html += this.createStatCard('Transactions', paidOrders.length, 'layers', 'amber');
+                     html += this.createStatCard('Net Revenue', '₹'+netRevenue.toLocaleString(), 'indian-rupee', 'emerald');
+                     html += this.createStatCard('Refund Events', refundCount, 'rotate-ccw', 'purple');
+                     html += this.createStatCard('Total Refunded', '₹'+totalRefunded.toLocaleString(), 'minus-circle', 'red');
+                     c.innerHTML = html;
+                     return;
+                 } 
+                 
+                 // Standard Stats for other tabs
+                 const tabItems = items.filter(i => i.type === this.state.activeTab);
+                 const active = tabItems.filter(i => i.status === 'active');
+                 const dead = tabItems.filter(i => i.status === 'dead');
+                 const activeVal = active.reduce((s,i) => s + (i.isCancelled ? 0 : i.value), 0); 
+                 
+                 let html = '';
+                 html += this.createStatCard(`Total ${this.state.activeTab}`, tabItems.length, 'layers', 'blue');
+                 html += this.createStatCard('Active', active.length, 'activity', 'emerald');
+                 if(this.state.activeTab === 'quotation') {
+                    const cancelledValue = tabItems.filter(i => i.status === 'dead').reduce((acc, curr) => acc + (curr.value || 0), 0);
+                    html += this.createStatCard('Cancelled Value', `₹${cancelledValue.toLocaleString()}`, 'x-circle', 'red');
+                 } else { html += this.createStatCard('Dead/Lost', dead.length, 'x-circle', 'red'); }
+                 html += this.createStatCard('Active Value', '₹'+activeVal.toLocaleString(), 'indian-rupee', 'purple');
+                 c.innerHTML = html;
             }
 
             renderList() {
-                const container = document.getElementById('items-list');
-                const searchQuery = this.state.searchQuery;
-                
-                let filtered;
-                if (this.state.activeTab === 'revenue') {
-                    filtered = this.state.items.filter(i => i.type === 'order' && (i.paymentStatus === 'paid' || i.paymentStatus === 'refunded'));
+                const list = document.getElementById('items-list');
+                const q = this.state.searchQuery;
+                if (this.state.activeTab === 'enquiry' || this.state.activeTab === 'quotation') {
+                    list.className = 'space-y-3 pb-10'; 
                 } else {
-                    filtered = this.state.items.filter(i => i.type === this.state.activeTab && i.status === this.state.subTab);
+                    list.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-10'; 
                 }
 
-                if(searchQuery) {
-                    filtered = filtered.filter(item => 
-                        item.id.toLowerCase().includes(searchQuery) ||
-                        item.name.toLowerCase().includes(searchQuery) ||
-                        (item.company && item.company.toLowerCase().includes(searchQuery)) ||
-                        item.mobile.includes(searchQuery) ||
-                        item.email.toLowerCase().includes(searchQuery)
-                    );
-                }
-
-                if (filtered.length === 0) {
-                    let emptyMsg = `No ${this.state.subTab} ${this.state.activeTab}s found.`;
-                    if(searchQuery) emptyMsg = "No results found for your search.";
-                    if (this.state.activeTab === 'revenue') emptyMsg = "No revenue collected yet.";
+                let filtered = this.state.items.filter(i => {
+                    if(q && !JSON.stringify(i).toLowerCase().includes(q)) return false;
                     
-                    container.innerHTML = `
-                        <div class="flex flex-col items-center justify-center h-64 border-2 border-dashed border-slate-800 rounded-2xl text-slate-500 animate-fade-in bg-slate-900/20">
-                            <div class="p-4 bg-slate-800/50 rounded-full mb-4">
-                                <i data-lucide="search" class="w-8 h-8 opacity-40"></i>
-                            </div>
-                            <p class="font-medium">${emptyMsg}</p>
-                            ${this.state.activeTab === 'enquiry' && !searchQuery ? '<p class="text-sm opacity-60 mt-1">Get started by creating a new entry.</p>' : ''}
-                        </div>
-                    `;
-                    return;
-                }
-
-                container.innerHTML = filtered.map((item, index) => {
-                    let badgeColor = "bg-slate-500/10 text-slate-400 border-slate-500/20";
-                    let typeLabel = "";
-                    let glowClass = ""; 
-
-                    if (item.type === 'quotation') {
-                        badgeColor = "bg-purple-500/10 text-purple-400 border-purple-500/20";
-                        typeLabel = "Quote";
-                        glowClass = "border-l-4 border-l-purple-500";
-                    } else if (item.type === 'order') {
-                        badgeColor = "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-                        typeLabel = "Order";
-                        glowClass = "border-l-4 border-l-emerald-500";
-                    } else {
-                        glowClass = "border-l-4 border-l-blue-500";
+                    if(this.state.activeTab === 'revenue') {
+                        // Show orders that have involved payment (either paid currently or refunded historically)
+                        return i.type === 'order' && ( (i.paidAmount > 0) || (i.totalRefunded > 0) );
                     }
-                    
-                    // Logic to show multiple badges if needed (Paid + Cancelled)
-                    let statusBadgesHtml = "";
-                    
-                    if (item.isCancelled) {
-                        statusBadgesHtml += `<span class="ml-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border bg-red-500/10 text-red-400 border-red-500/20">Cancelled</span>`;
-                    }
-                    
-                    if (item.paymentStatus === 'paid') {
-                        statusBadgesHtml += `<span class="ml-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border bg-amber-500/10 text-amber-400 border-amber-500/20">Paid</span>`;
-                    } else if (item.paymentStatus === 'refunded') {
-                        statusBadgesHtml += `<span class="ml-2 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border bg-pink-500/10 text-pink-400 border-pink-500/20">Refunded</span>`;
-                    }
+                    if(this.state.activeTab === 'market-research') return i.type === 'market-research';
+                    return i.type === this.state.activeTab && i.status === this.state.subTab;
+                });
 
-                    // --- Buttons Setup ---
-                    const baseBtn = "flex-1 md:flex-none px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 text-sm shadow-md active:scale-95";
+                if(!filtered.length) { list.innerHTML = `<div class="text-center p-10 text-slate-500 col-span-full">No records found.</div>`; return; }
+
+                list.innerHTML = filtered.map(i => {
+                    let borderClass = i.type === 'enquiry' ? 'border-blue-500' : i.type === 'quotation' ? 'border-purple-500' : i.type === 'market-research' ? 'border-orange-500' : 'border-emerald-500';
+                    const cancelled = i.isCancelled || i.status === 'dead';
                     
-                    const editBtn = `
-                        <button onclick="app.openEditModal('${item.id}')" class="flex-1 md:flex-none px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 text-sm shadow-md active:scale-95 border border-indigo-500/30 text-indigo-400 hover:bg-indigo-500/10 hover:text-indigo-300" title="Edit Details">
-                            <i data-lucide="pencil" class="w-4 h-4"></i>
-                        </button>
-                    `;
+                    // FORCE RED BORDER IF CANCELLED OR DEAD
+                    if (cancelled) borderClass = 'border-red-600 bg-red-50';
 
-                    const markDeadBtn = `
-                        <button onclick="app.markStatus('${item.id}', 'dead')" class="p-2.5 rounded-lg text-slate-500 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200" title="Move to Dead/Lost">
-                            <i data-lucide="x-circle" class="w-5 h-5"></i>
-                        </button>
-                    `;
+                    const isSingleLine = (i.type === 'enquiry' || i.type === 'quotation') || (i.status === 'dead' && (i.type === 'enquiry' || i.type === 'quotation'));
+
+                    let actions = `<button onclick="app.openEdit('${i.id}')" class="px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg text-xs hover:bg-indigo-100 font-bold shadow-sm transition-colors border border-indigo-200">Edit</button>`;
                     
-                    const cancelBtn = `
-                        <button onclick="app.cancelItem('${item.id}')" class="flex-1 md:flex-none px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-2 text-sm shadow-md active:scale-95 border border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300" title="Cancel/Invalidate">
-                            <i data-lucide="ban" class="w-4 h-4"></i>
-                        </button>
-                    `;
-
-                    const restoreBtn = `
-                        <button onclick="app.markStatus('${item.id}', 'active')" class="${baseBtn} border border-slate-600 text-slate-300 hover:bg-slate-800 hover:text-white hover:border-slate-500">
-                            <i data-lucide="archive-restore" class="w-4 h-4"></i> Restore
-                        </button>
-                    `;
-
-                    let actionsHtml = '';
-
-                    // Logic Branches based on View
-                    if (this.state.activeTab === 'revenue') {
-                         const refundLabel = item.paymentStatus === 'refunded' ? 'Undo' : 'Refund';
-                         const refundIcon = item.paymentStatus === 'refunded' ? 'rotate-ccw' : 'rotate-ccw';
-                         actionsHtml = `
-                            <button onclick="app.toggleRefundStatus('${item.id}')" class="${baseBtn} border border-pink-500/30 text-pink-400 hover:bg-pink-500/10 hover:text-pink-300">
-                                ${refundLabel} <i data-lucide="${refundIcon}" class="w-4 h-4"></i>
-                            </button>
-                            <button onclick="app.downloadPO('${item.id}')" class="${baseBtn} bg-slate-700 hover:bg-slate-600 text-slate-200 hover:text-white shadow-lg">
-                                <i data-lucide="download" class="w-4 h-4"></i> PO
-                            </button>
-                        `;
-                    } else if (this.state.subTab === 'dead') {
-                        // Dead/Lost Tab Logic
-                        let extraDeadActions = '';
-                        // If it's a paid/refunded order in dead tab, show refund controls
-                        if (item.type === 'order' && (item.paymentStatus === 'paid' || item.paymentStatus === 'refunded')) {
-                             const refundLabel = item.paymentStatus === 'refunded' ? 'Undo' : 'Refund';
-                             extraDeadActions = `
-                                <button onclick="app.toggleRefundStatus('${item.id}')" class="${baseBtn} border border-pink-500/30 text-pink-400 hover:bg-pink-500/10 hover:text-pink-300">
-                                    ${refundLabel} <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
-                                </button>
-                             `;
+                    if(this.state.activeTab === 'market-research') {
+                         actions += `<button onclick="app.openCancelModal('${i.id}')" class="px-4 py-1.5 bg-red-50 text-red-600 rounded-lg text-xs hover:bg-red-100 font-bold shadow-sm transition-colors border border-red-200 ml-2">Delete</button>`;
+                    } else if(this.state.activeTab === 'revenue') {
+                        // Revenue View - Show Red Text for cancelled/refunded
+                        // AND Show Refund Button if Refund Due
+                        const fin = this.getFinancials(i);
+                        if(fin.balance < 0) { // Refund Due exists
+                            actions += `<button onclick="app.openPaymentModal('${i.id}', 'refund')" class="ml-2 px-4 py-1.5 bg-pink-100 text-pink-700 border border-pink-300 rounded-lg text-xs font-bold shadow-sm hover:bg-pink-200 transition-colors">Refund</button>`;
+                        } else if(i.paymentStatus === 'refunded' || i.isCancelled) {
+                             actions = `<span class="ml-2 text-red-600 text-xs font-bold uppercase border border-red-200 bg-red-50 px-3 py-1 rounded">Cancelled/Refunded</span>` + actions;
+                        } else {
+                            actions = '';
                         }
-                        actionsHtml = `
-                            ${extraDeadActions}
-                            ${restoreBtn}
-                        `;
+                        actions += `<button onclick="app.dlPDF('${i.id}', 'PO')" class="ml-2 px-4 py-1.5 bg-slate-100 text-slate-700 rounded-lg text-xs hover:bg-slate-200 font-bold shadow-sm transition-colors border border-slate-300">Download PO</button>`;
+                    } else if(this.state.subTab === 'dead') {
+                        // Dead View
+                        actions = `<button onclick="app.restoreOrder('${i.id}')" class="px-4 py-1.5 bg-blue-50 text-blue-600 rounded-lg text-xs hover:bg-blue-100 font-bold shadow-sm transition-colors border border-blue-200">Restore</button>`;
+                        
+                        // Check if Refund logic applies (Cancelled service items)
+                        if(i.type === 'order' && i.isCancelled && i.parentId) {
+                             // Find parent to check payment status
+                             const parent = this.state.items.find(p => p.id === i.parentId);
+                             // Only show refund button if parent exists AND has paid amount > 0
+                             const isPaid = parent && (parent.paidAmount > 0);
+                             const isRefunded = i.paymentStatus === 'refunded';
+                             
+                             if(isRefunded) {
+                                 actions += `<span class="ml-2 px-4 py-1.5 bg-pink-100 text-pink-700 rounded-lg text-xs font-bold border border-pink-200 cursor-default">Refunded</span>`;
+                             } else if (isPaid) {
+                                 actions += `<button onclick="app.refundOrder('${i.id}')" class="ml-2 px-4 py-1.5 bg-pink-50 text-pink-600 rounded-lg text-xs hover:bg-pink-100 font-bold shadow-sm transition-colors border border-pink-200">Refund</button>`;
+                             }
+                        }
+                        // For full cancellations (no parentId, self is cancelled order)
+                        else if(i.type === 'order' && i.isCancelled && !i.parentId) {
+                             const fin = this.getFinancials(i);
+                             // If balance is negative (Refund Due) or paidAmount > 0 (can refund any paid amount)
+                             // Logic: If cancelled, you can refund whatever was paid
+                             if(i.paidAmount > 0) { 
+                                 actions += `<button onclick="app.openPaymentModal('${i.id}', 'refund')" class="ml-2 px-4 py-1.5 bg-pink-50 text-pink-600 rounded-lg text-xs hover:bg-pink-100 font-bold shadow-sm transition-colors border border-pink-200">Refund</button>`;
+                             } else {
+                                 actions += `<span class="ml-2 px-4 py-1.5 text-slate-400 text-xs italic">Unpaid</span>`;
+                             }
+                        }
                     } else {
-                        // Active Tab Logic
-                        if (item.type === 'enquiry') {
-                            actionsHtml = `
-                                ${editBtn}
-                                ${markDeadBtn}
-                                ${cancelBtn}
-                                <button onclick="app.openConvertModal('${item.id}')" class="${baseBtn} bg-blue-600 hover:bg-blue-500 text-white shadow-blue-900/20 hover:shadow-blue-500/30">
-                                    Convert Quote <i data-lucide="arrow-right" class="w-4 h-4"></i>
-                                </button>
-                            `;
-                        } else if (item.type === 'quotation') {
-                            actionsHtml = `
-                                ${editBtn}
-                                ${markDeadBtn}
-                                ${cancelBtn}
-                                <button onclick="app.downloadQuote('${item.id}')" class="${baseBtn} bg-purple-600 hover:bg-purple-500 text-white shadow-purple-900/20 hover:shadow-purple-500/30">
-                                    <i data-lucide="download" class="w-4 h-4"></i> Quote
-                                </button>
-                                <button onclick="app.markAsOrder('${item.id}')" class="${baseBtn} bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-900/20 hover:shadow-emerald-500/30">
-                                    Convert Order <i data-lucide="check-circle-2" class="w-4 h-4"></i>
-                                </button>
-                            `;
-                        } else if (item.type === 'order') {
-                            let payBtn;
-                            if (item.paymentStatus === 'paid') {
-                                payBtn = `
-                                    <button onclick="app.togglePaymentStatus('${item.id}')" class="${baseBtn} border border-green-500/30 text-green-500 hover:bg-green-500/10 hover:text-green-400">
-                                        Paid <i data-lucide="check" class="w-4 h-4"></i>
-                                    </button>
-                                `;
-                            } else if (item.paymentStatus === 'refunded') {
-                                payBtn = `
-                                    <span class="text-xs font-bold text-pink-400 uppercase tracking-widest mr-2 px-3">Refunded</span>
-                                `;
+                        // Active Views
+                        if(i.type === 'enquiry') actions += `<button onclick="app.openConvertModal('${i.id}', 'quotation')" class="px-4 py-1.5 bg-blue-600 text-white rounded-lg text-xs hover:bg-blue-700 font-bold shadow-sm transition-colors ml-2">Convert Quote</button>`;
+                        if(i.type === 'quotation') {
+                            actions += `<button onclick="app.dlPDF('${i.id}', 'QUOTE')" class="ml-2 px-4 py-1.5 bg-purple-50 text-purple-700 rounded-lg text-xs hover:bg-purple-100 font-bold shadow-sm transition-colors border border-purple-200">Download Quote</button>`;
+                            actions += `<button onclick="app.openConvertModal('${i.id}', 'order')" class="ml-2 px-4 py-1.5 bg-emerald-600 text-white rounded-lg text-xs hover:bg-emerald-700 font-bold shadow-sm transition-colors">Convert Order</button>`;
+                        }
+                        if(i.type === 'order') {
+                            const fin = this.getFinancials(i);
+                            // If Balance < 0, show Pay Refund Due button
+                            if(fin.balance < 0) {
+                                actions += `<button onclick="app.openPaymentModal('${i.id}', 'refund')" class="ml-2 px-4 py-1.5 bg-pink-100 text-pink-700 border border-pink-300 rounded-lg text-xs font-bold shadow-sm hover:bg-pink-200 transition-colors">Pay Refund Due</button>`;
                             } else {
-                                payBtn = `
-                                    <button onclick="app.togglePaymentStatus('${item.id}')" class="${baseBtn} border border-slate-600 text-slate-400 hover:bg-slate-800 hover:text-white">
-                                        Pending <i data-lucide="clock" class="w-4 h-4"></i>
-                                    </button>
-                                `;
+                                const isPaid = i.paymentStatus === 'paid';
+                                actions += `<button onclick="app.openPaymentModal('${i.id}')" class="ml-2 px-4 py-1.5 bg-${isPaid?'emerald':'slate'}-100 text-${isPaid?'emerald':'slate'}-700 border border-${isPaid?'emerald':'slate'}-300 rounded-lg text-xs font-bold shadow-sm hover:bg-${isPaid?'emerald':'slate'}-200 transition-colors">${isPaid?'Paid':'Mark Paid'}</button>`;
                             }
                             
-                            const uploadBtn = item.poUploaded 
-                                ? `<button onclick="app.triggerUpload('${item.id}')" class="${baseBtn} border border-green-500/30 text-green-500 hover:bg-green-500/10 hover:text-green-400">PO Uploaded <i data-lucide="check" class="w-4 h-4"></i></button>`
-                                : `<button onclick="app.triggerUpload('${item.id}')" class="${baseBtn} border border-blue-500/30 text-blue-400 hover:bg-blue-500/10 hover:text-blue-300">Upload PO <i data-lucide="upload" class="w-4 h-4"></i></button>`;
-
-                            actionsHtml = `
-                                ${editBtn}
-                                ${payBtn}
-                                ${cancelBtn}
-                                ${uploadBtn}
-                                <button onclick="app.downloadPO('${item.id}')" class="${baseBtn} bg-slate-700 hover:bg-slate-600 text-slate-200 hover:text-white shadow-lg">
-                                    <i data-lucide="download" class="w-4 h-4"></i> PO
-                                </button>
-                            `;
+                            if(!i.poUploaded) actions += `<button onclick="app.triggerUpload('${i.id}')" class="ml-2 px-4 py-1.5 bg-blue-50 text-blue-600 border border-blue-200 rounded-lg text-xs font-bold shadow-sm hover:bg-blue-100 transition-colors">Upload PO</button>`;
+                            else actions += `<span class="ml-2 px-3 py-1.5 text-emerald-600 text-xs font-bold border border-emerald-200 bg-emerald-50 rounded-lg flex items-center">PO <i data-lucide="check" class="w-3 h-3 ml-1"></i></span>`;
+                            actions += `<button onclick="app.dlPDF('${i.id}', 'PO')" class="ml-2 px-4 py-1.5 bg-slate-100 text-slate-700 border border-slate-300 rounded-lg text-xs font-bold shadow-sm hover:bg-slate-200 transition-colors">Download PO</button>`;
+                            actions += `<button onclick="app.openTaxInvoice('${i.id}')" class="ml-2 px-4 py-1.5 bg-gray-100 text-gray-700 border border-gray-300 rounded-lg text-xs font-bold shadow-sm hover:bg-gray-200 transition-colors">Tax Invoice</button>`;
                         }
-                    }
-                    
-                    if (item.status === 'dead' || item.isCancelled) {
-                        glowClass = "border-l-4 border-l-red-500";
-                    } else if (item.paymentStatus === 'refunded') {
-                        glowClass = "border-l-4 border-l-pink-500";
+                        actions += `<button onclick="app.openCancelModal('${i.id}')" class="ml-2 px-4 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-lg text-xs font-bold shadow-sm hover:bg-red-100 transition-colors outline-2 outline-red-500/20">Cancel</button>`;
                     }
 
-                    const opacityClass = (item.status === 'dead' || item.isCancelled || item.paymentStatus === 'refunded') ? "opacity-75" : "";
-
-                    return `
-                        <div class="card-glass hover-lift rounded-xl p-4 md:p-5 flex flex-col md:flex-row md:items-center justify-between gap-6 stagger-item group relative overflow-hidden ${opacityClass}" style="animation-delay: ${index * 70}ms">
-                            <div class="absolute left-0 top-0 bottom-0 w-1 ${glowClass.replace('border-l-4 border-l-', 'bg-')}"></div>
-                            
-                            <div class="flex-1 pl-3">
-                                <div class="flex flex-wrap items-center gap-2 md:gap-3 mb-2">
-                                    <span class="font-mono text-xs text-slate-500 bg-slate-950/50 border border-slate-800 px-2 py-1 rounded-md tracking-wider">${item.id}</span>
-                                    <h4 class="font-bold text-base md:text-lg text-slate-100 group-hover:text-white transition-colors ${item.status === 'dead' ? 'text-slate-500' : ''}">${item.company || item.name}</h4>
-                                    ${item.company ? `<span class="hidden sm:inline text-xs text-slate-500 ml-2 border border-slate-700 px-2 py-0.5 rounded">${item.name}</span>` : ''}
-                                    ${typeLabel ? `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${badgeColor}">${typeLabel}</span>` : ''}
-                                    ${statusBadgesHtml}
+                    if (isSingleLine) {
+                        return `
+                        <div class="single-line-card mb-2 border-l-[6px] ${borderClass} cursor-pointer" onclick="app.openViewDetails('${i.id}')">
+                            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 w-full items-center">
+                                <div class="col-span-3">
+                                    <div class="font-bold text-slate-800 text-sm truncate">${i.company || i.name}</div>
+                                    <div class="text-xs text-slate-500 flex items-center gap-1"><i data-lucide="user" class="w-3 h-3"></i> ${i.name}</div>
                                 </div>
-                                <p class="text-slate-400 text-sm mb-4 line-clamp-1 group-hover:text-slate-300 transition-colors">${item.desc}</p>
+                                <div class="col-span-2 text-xs text-slate-500 font-mono">${i.date}</div>
+                                <div class="col-span-3">
+                                    <div class="text-xs text-slate-600 truncate">${i.services?.map(s => `${s.s} (${s.c})`).join(', ') || '-'}</div>
+                                    ${i.value > 0 ? `<div class="text-xs font-bold text-emerald-600">₹${i.value.toLocaleString()}</div>` : ''}
+                                </div>
+                                <div class="col-span-4 flex justify-end flex-wrap gap-2" onclick="event.stopPropagation()">
+                                    ${actions}
+                                </div>
+                            </div>
+                        </div>`;
+                    } else {
+                        // Square Card for Orders
+                        const fin = this.getFinancials(i);
+                        let paymentInfo = '';
+                        if(i.type === 'order' && (i.value > 0 || i.isCancelled)) {
+                            let pendingText = `Pending: ₹${fin.balance.toLocaleString()}`;
+                            let pendingClass = "text-red-500";
+                            if (fin.balance < 0) {
+                                pendingText = `Refund Due: ₹${Math.abs(fin.balance).toLocaleString()}`;
+                                pendingClass = "text-blue-500";
+                            } else if (fin.balance === 0) {
+                                pendingText = "Settled";
+                                pendingClass = "text-emerald-500";
+                            }
+
+                            paymentInfo = `
+                            <div class="mt-2 text-xs space-y-1 bg-slate-50 p-2 rounded border border-slate-100">
+                                <div class="flex justify-between"><span class="text-slate-500">Total:</span> <span>₹${fin.totalValue.toLocaleString()}</span></div>
+                                <div class="flex justify-between border-t border-slate-200 pt-1"><span class="text-slate-700 font-bold">Net Payable:</span> <span>₹${fin.netPayable.toLocaleString()}</span></div>
+                                <div class="flex justify-between font-bold border-t border-slate-200 pt-1">
+                                    <span class="text-emerald-600">Paid: ₹${fin.paidAmount.toLocaleString()}</span>
+                                    <span class="${pendingClass}">${pendingText}</span>
+                                </div>
+                            </div>`;
+                        }
+                        
+                        return `
+                        <div class="square-card border-l-[6px] ${borderClass} p-6 mb-4 cursor-pointer relative ${cancelled?'opacity-75 grayscale':''}" onclick="app.openViewDetails('${i.id}')">
+                            <div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">${i.date}</span>
+                                    <span class="font-mono text-xs text-slate-400">${i.id}</span>
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-1 line-clamp-1">${i.company || i.name}</h3>
+                                <div class="text-sm text-gray-500 mb-2">${i.name}</div>
                                 
-                                <div class="flex flex-wrap items-center gap-4 text-sm text-slate-500">
-                                     <span class="flex items-center gap-2 hover:text-blue-400 transition-colors cursor-default">
-                                        <i data-lucide="calendar" class="w-3.5 h-3.5"></i> ${item.date || 'N/A'}
-                                    </span>
-                                    <span class="flex items-center gap-2 hover:text-blue-400 transition-colors cursor-default">
-                                        <i data-lucide="mail" class="w-3.5 h-3.5"></i> ${item.email}
-                                    </span>
-                                    <span class="flex items-center gap-2 hover:text-blue-400 transition-colors cursor-default">
-                                        <i data-lucide="smartphone" class="w-3.5 h-3.5"></i> ${item.mobile}
-                                    </span>
-                                    ${item.value > 0 ? `
-                                        <span class="flex items-center gap-2 text-emerald-400 font-bold bg-emerald-500/5 px-2 py-0.5 rounded-md border border-emerald-500/10 ${item.isCancelled ? 'line-through opacity-50' : ''}">
-                                            <i data-lucide="indian-rupee" class="w-3.5 h-3.5"></i> ${item.value.toLocaleString()}
-                                        </span>
-                                    ` : ''}
+                                ${i.type==='market-research'? `<div class="mt-2 text-xs bg-orange-50 text-orange-800 p-2 rounded border border-orange-100 line-clamp-2">${i.pitch || 'No pitch'}</div>` : ''}
+                                
+                                ${i.services && i.services.length ? `
+                                    <div class="mt-3 bg-gray-50 p-2 rounded border border-gray-100 mb-3">
+                                        <div class="text-[10px] font-bold text-gray-400 uppercase mb-1">Services</div>
+                                        <div class="text-xs font-medium text-gray-700 line-clamp-2">
+                                            ${i.services.map(s => `${s.s} (${s.c})`).join(', ')}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                                ${i.value > 0 && i.type !== 'order' ? `<div class="mt-2 text-emerald-600 font-bold text-lg">Total: ₹${i.value.toLocaleString()}</div>` : ''}
+                                ${paymentInfo}
+                                
+                                <div class="flex flex-wrap gap-1 mt-2">
+                                    ${cancelled ? `<span class="text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded font-bold uppercase">CANCELLED</span>` : ''}
+                                    ${i.paymentStatus==='paid' ? `<span class="text-[10px] bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded font-bold uppercase">PAID</span>` : ''}
+                                    ${i.paymentStatus==='partial' ? `<span class="text-[10px] bg-amber-100 text-amber-600 px-2 py-0.5 rounded font-bold uppercase">PARTIAL</span>` : ''}
+                                    ${i.paymentStatus==='refunded' ? `<span class="text-[10px] bg-pink-100 text-pink-600 px-2 py-0.5 rounded font-bold uppercase">REFUNDED</span>` : ''}
+                                    ${(i.totalRefunded || 0) > 0 ? `<span class="text-[10px] bg-purple-100 text-purple-600 px-2 py-0.5 rounded font-bold uppercase">HAS REFUNDS</span>` : ''}
                                 </div>
                             </div>
-
-                            <div class="flex flex-wrap items-center gap-3 self-start md:self-center opacity-100 md:opacity-90 group-hover:opacity-100 transition-opacity z-10 w-full md:w-auto">
-                                ${actionsHtml}
+                            
+                            <div class="pt-4 mt-auto border-t border-gray-100 flex flex-wrap gap-2 justify-end" onclick="event.stopPropagation()">
+                                ${actions}
                             </div>
-                        </div>
-                    `;
+                        </div>`;
+                    }
                 }).join('');
             }
         }
-
+        
         const app = new PixelCRM();
     </script>
 </body>
